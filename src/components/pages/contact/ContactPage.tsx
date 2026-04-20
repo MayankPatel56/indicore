@@ -126,7 +126,7 @@ export default function ContactPage() {
                 <Mail className="h-5 w-5 text-[#B87333]" />
               </div>
               <h3 className="text-sm font-semibold text-[#1A1A1A]">Email Us</h3>
-              <p className="text-sm text-[#B87333] font-medium mt-1">support@indicoreoriginals.com</p>
+              <p className="text-sm text-[#B87333] font-medium mt-1">originalsindicore@gmail.com</p>
               <p className="text-xs text-[#1A1A1A]/40 mt-1">We respond within 24 hours</p>
             </CardContent>
           </Card>

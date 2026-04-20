@@ -53,7 +53,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 px-6">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/20">
-          <Diamond className="h-5 w-5 text-gold" />
+          <img
+            src="/logo.png"
+            alt="IndiCore Originals"
+            className="h-5 w-auto brightness-0 invert"
+          />
         </div>
         <span className="text-lg font-bold text-white">IndiCore Originals</span>
       </div>

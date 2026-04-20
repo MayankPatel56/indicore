@@ -1393,8 +1393,12 @@ export default function ProfilePage() {
       {/* App Info */}
       <Card className="border-[#1A1A1A]/6 shadow-sm rounded-2xl">
         <CardContent className="p-5 text-center">
-          <div className="w-12 h-12 rounded-xl bg-[#C9A96E]/10 flex items-center justify-center mx-auto mb-3">
-            <Diamond className="h-6 w-6 text-[#C9A96E]" />
+          <div className="w-12 h-12 rounded-xl bg-[#B87333]/10 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="IndiCore Originals"
+              className="h-8 w-auto"
+            />
           </div>
           <p className="text-sm font-semibold text-[#1A1A1A]">IndiCore Originals</p>
           <p className="text-xs text-[#1A1A1A]/40 mt-0.5">Premium Products</p>

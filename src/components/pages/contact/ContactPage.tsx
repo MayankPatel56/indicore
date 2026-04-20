@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Mail, Phone, MapPin, Loader2, Send, Gem } from 'lucide-react';
+import { Mail, Loader2, Send, Instagram } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,27 +34,6 @@ const contactSchema = z.object({
 });
 
 type ContactFormValues = z.infer<typeof contactSchema>;
-
-const contactInfo = [
-  {
-    icon: Mail,
-    title: 'Email Us',
-    detail: 'support@indicoreoriginals.com',
-    description: 'We respond within 24 hours',
-  },
-  {
-    icon: Phone,
-    title: 'Call Us',
-    detail: '+91 98765 43210',
-    description: 'Mon-Sat, 10am-7pm IST',
-  },
-  {
-    icon: MapPin,
-    title: 'Visit Us',
-    detail: 'IndiCore HQ, Mumbai, India',
-    description: 'By appointment only',
-  },
-];
 
 export default function ContactPage() {
   const navigate = useNavigationStore((s) => s.navigate);
@@ -102,8 +81,8 @@ export default function ContactPage() {
     <div className="min-h-[80vh] bg-[#FAF8F5]">
       {/* Subtle background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-40 right-20 w-64 h-64 rounded-full bg-[#C9A96E]/5 blur-3xl" />
-        <div className="absolute bottom-40 left-20 w-48 h-48 rounded-full bg-[#C9A96E]/5 blur-3xl" />
+        <div className="absolute top-40 right-20 w-64 h-64 rounded-full bg-[#B87333]/5 blur-3xl" />
+        <div className="absolute bottom-40 left-20 w-48 h-48 rounded-full bg-[#B87333]/5 blur-3xl" />
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 relative">
@@ -114,7 +93,7 @@ export default function ContactPage() {
               <BreadcrumbItem>
                 <BreadcrumbLink
                   asChild
-                  className="cursor-pointer hover:text-[#C9A96E]"
+                  className="cursor-pointer hover:text-[#B87333]"
                 >
                   <span onClick={() => navigate('home')}>Home</span>
                 </BreadcrumbLink>
@@ -129,8 +108,8 @@ export default function ContactPage() {
 
         {/* Page Header */}
         <div className="text-center mb-12">
-          <div className="mx-auto w-14 h-14 rounded-full bg-[#C9A96E]/10 flex items-center justify-center mb-4">
-            <Gem className="h-7 w-7 text-[#C9A96E]" />
+          <div className="mx-auto w-14 h-14 rounded-full bg-[#B87333]/10 flex items-center justify-center mb-4">
+            <Mail className="h-7 w-7 text-[#B87333]" />
           </div>
           <h1 className="text-3xl font-bold text-[#1A1A1A] sm:text-4xl">Get in Touch</h1>
           <p className="mt-2 text-[#1A1A1A]/60 max-w-md mx-auto">
@@ -139,26 +118,40 @@ export default function ContactPage() {
         </div>
 
         {/* Contact Info Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
-          {contactInfo.map((item) => (
-            <Card
-              key={item.title}
-              className="border-[#C9A96E]/20 text-center hover:shadow-md transition-shadow"
-            >
-              <CardContent className="pt-6 pb-6 flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full bg-[#C9A96E]/10 flex items-center justify-center mb-3">
-                  <item.icon className="h-5 w-5 text-[#C9A96E]" />
-                </div>
-                <h3 className="text-sm font-semibold text-[#1A1A1A]">{item.title}</h3>
-                <p className="text-sm text-[#C9A96E] font-medium mt-1">{item.detail}</p>
-                <p className="text-xs text-[#1A1A1A]/40 mt-1">{item.description}</p>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+          {/* Email Card */}
+          <Card className="border-[#B87333]/20 text-center hover:shadow-md transition-shadow">
+            <CardContent className="pt-6 pb-6 flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full bg-[#B87333]/10 flex items-center justify-center mb-3">
+                <Mail className="h-5 w-5 text-[#B87333]" />
+              </div>
+              <h3 className="text-sm font-semibold text-[#1A1A1A]">Email Us</h3>
+              <p className="text-sm text-[#B87333] font-medium mt-1">support@indicoreoriginals.com</p>
+              <p className="text-xs text-[#1A1A1A]/40 mt-1">We respond within 24 hours</p>
+            </CardContent>
+          </Card>
+
+          {/* Instagram QR Card */}
+          <Card className="border-[#B87333]/20 text-center hover:shadow-md transition-shadow">
+            <CardContent className="pt-6 pb-6 flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500/15 to-pink-500/15 flex items-center justify-center mb-3">
+                <Instagram className="h-5 w-5 text-[#E4405F]" />
+              </div>
+              <h3 className="text-sm font-semibold text-[#1A1A1A]">Follow us on Instagram</h3>
+              <p className="text-xs text-[#1A1A1A]/40 mt-1 mb-3">Scan the QR code to visit our page</p>
+              <div className="rounded-lg overflow-hidden border border-[#1A1A1A]/8 shadow-sm">
+                <img
+                  src="/qr.jpeg"
+                  alt="IndiCore Originals Instagram QR Code"
+                  className="h-32 w-32 object-cover"
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Contact Form */}
-        <Card className="max-w-2xl mx-auto border-[#C9A96E]/20">
+        <Card className="max-w-2xl mx-auto border-[#B87333]/20">
           <CardHeader className="text-center">
             <CardTitle className="text-xl text-[#1A1A1A]">Send us a Message</CardTitle>
           </CardHeader>
@@ -172,7 +165,7 @@ export default function ContactPage() {
                   <Input
                     id="contact-name"
                     placeholder="Your name"
-                    className="h-10 border-[#1A1A1A]/20 focus-visible:ring-[#C9A96E]/50 focus-visible:border-[#C9A96E]"
+                    className="h-10 border-[#1A1A1A]/20 focus-visible:ring-[#B87333]/50 focus-visible:border-[#B87333]"
                     {...register('name')}
                   />
                   {errors.name && (
@@ -187,7 +180,7 @@ export default function ContactPage() {
                     id="contact-email"
                     type="email"
                     placeholder="you@example.com"
-                    className="h-10 border-[#1A1A1A]/20 focus-visible:ring-[#C9A96E]/50 focus-visible:border-[#C9A96E]"
+                    className="h-10 border-[#1A1A1A]/20 focus-visible:ring-[#B87333]/50 focus-visible:border-[#B87333]"
                     {...register('email')}
                   />
                   {errors.email && (
@@ -203,7 +196,7 @@ export default function ContactPage() {
                 <Input
                   id="contact-subject"
                   placeholder="How can we help?"
-                  className="h-10 border-[#1A1A1A]/20 focus-visible:ring-[#C9A96E]/50 focus-visible:border-[#C9A96E]"
+                  className="h-10 border-[#1A1A1A]/20 focus-visible:ring-[#B87333]/50 focus-visible:border-[#B87333]"
                   {...register('subject')}
                 />
                 {errors.subject && (
@@ -219,7 +212,7 @@ export default function ContactPage() {
                   id="contact-message"
                   placeholder="Tell us more about your inquiry..."
                   rows={5}
-                  className="border-[#1A1A1A]/20 focus-visible:ring-[#C9A96E]/50 focus-visible:border-[#C9A96E] resize-none"
+                  className="border-[#1A1A1A]/20 focus-visible:ring-[#B87333]/50 focus-visible:border-[#B87333] resize-none"
                   {...register('message')}
                 />
                 {errors.message && (
@@ -230,7 +223,7 @@ export default function ContactPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-10 bg-[#C9A96E] hover:bg-[#b89558] text-white font-medium transition-colors"
+                className="w-full h-10 bg-[#B87333] hover:bg-[#9E6329] text-white font-medium transition-colors"
               >
                 {loading ? (
                   <>

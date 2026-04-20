@@ -58,8 +58,12 @@ export default function AdminLogin() {
     <div className="flex min-h-screen items-center justify-center bg-cream px-4">
       <Card className="w-full max-w-md border-0 shadow-xl">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-charcoal">
-            <Diamond className="h-6 w-6 text-gold" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-charcoal overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="IndiCore Originals"
+              className="h-7 w-auto"
+            />
           </div>
           <CardTitle className="text-2xl font-bold text-charcoal">Welcome Back</CardTitle>
           <CardDescription className="text-muted-foreground">

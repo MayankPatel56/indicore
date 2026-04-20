@@ -79,11 +79,11 @@ export default function Header() {
           onClick={() => navigate('home')}
           className="flex items-center gap-2 transition-opacity hover:opacity-80"
         >
-          <Hexagon className="h-6 w-6 text-[#B87333]" />
-          <span className="text-xl font-bold tracking-tight text-[#1A1A1A]">
-            Indi<span className="text-[#B87333]">Core</span>
-            <span className="text-[#1A1A1A]/60 font-normal text-sm ml-1 hidden sm:inline">Originals</span>
-          </span>
+          <img
+            src="/logo.png"
+            alt="IndiCore Originals"
+            className="h-8 w-auto"
+          />
         </button>
 
         {/* Center: Desktop Nav Links */}
@@ -217,10 +217,11 @@ export default function Header() {
               <SheetContent side="right" className="w-72">
                 <SheetHeader>
                   <SheetTitle className="flex items-center gap-2">
-                    <Hexagon className="h-5 w-5 text-[#B87333]" />
-                    <span>
-                      Indi<span className="text-[#B87333]">Core</span>
-                    </span>
+                    <img
+                      src="/logo.png"
+                      alt="IndiCore Originals"
+                      className="h-5 w-auto"
+                    />
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-1 mt-4">

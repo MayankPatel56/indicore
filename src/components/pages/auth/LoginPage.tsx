@@ -115,8 +115,12 @@ export default function LoginPage() {
 
       <Card className="w-full max-w-md relative border-[#C9A96E]/20 shadow-lg">
         <CardHeader className="text-center space-y-2 pb-2">
-          <div className="mx-auto w-12 h-12 rounded-full bg-[#C9A96E]/10 flex items-center justify-center mb-2">
-            <Diamond className="h-6 w-6 text-[#C9A96E]" />
+          <div className="mx-auto w-12 h-12 rounded-full bg-[#B87333]/10 flex items-center justify-center mb-2 overflow-hidden">
+            <img
+              src="/logo.png"
+              alt="IndiCore Originals"
+              className="h-7 w-auto"
+            />
           </div>
           <CardTitle className="text-2xl font-bold text-[#1A1A1A]">
             Welcome Back

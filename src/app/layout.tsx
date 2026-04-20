@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: "Discover premium products at IndiCore Originals. Portable fans, fitness gear, home essentials and more. Free shipping on all orders.",
   keywords: ["premium products", "portable fans", "fitness", "home essentials", "IndiCore", "Indian products", "gadgets"],
   icons: {
-    icon: "/logo.svg",
+    icon: "/logo.png",
   },
 };
 

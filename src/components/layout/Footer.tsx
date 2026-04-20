@@ -69,10 +69,11 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <Hexagon className="h-6 w-6 text-[#B87333]" />
-              <span className="text-lg font-bold tracking-tight">
-                Indi<span className="text-[#B87333]">Core</span>
-              </span>
+              <img
+                src="/logo.png"
+                alt="IndiCore Originals"
+                className="h-7 w-auto brightness-0 invert"
+              />
             </div>
             <p className="text-sm text-gray-400 leading-relaxed mb-4">
               Rooted in Indian heritage. Engineered with modern precision. Premium products for the discerning individual.
@@ -164,7 +165,11 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Hexagon className="h-4 w-4 text-[#B87333]/60" />
+            <img
+              src="/logo.png"
+              alt="IndiCore Originals"
+              className="h-4 w-auto brightness-0 invert opacity-60"
+            />
             <span className="text-xs text-gray-500">
               &copy; 2024 IndiCore Originals. All rights reserved.
             </span>

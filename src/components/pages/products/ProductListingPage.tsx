@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   PackageX,
+  Zap,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -154,19 +155,34 @@ function ProductCard({ product }: { product: Product }) {
         {product.stock === 0 && (
           <p className="mt-1 text-xs text-red-500 font-medium">Out of Stock</p>
         )}
-        <Button
-          disabled={product.stock === 0}
-          onClick={(e) => {
-            e.stopPropagation();
-            addToCart(product);
-            toast.success(`${product.name} added to cart!`);
-          }}
-          className="mt-3 w-full bg-[#1A1A1A] hover:bg-[#333] text-white text-xs disabled:opacity-50"
-          size="sm"
-        >
-          <ShoppingBag className="mr-1.5 h-3.5 w-3.5" />
-          {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-        </Button>
+        <div className="mt-3 flex gap-2">
+          <Button
+            disabled={product.stock === 0}
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(product);
+              toast.success(`${product.name} added to cart!`);
+            }}
+            className="flex-1 bg-[#1A1A1A] hover:bg-[#333] text-white text-xs disabled:opacity-50 rounded-lg"
+            size="sm"
+          >
+            <ShoppingBag className="mr-1.5 h-3.5 w-3.5" />
+            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+          </Button>
+          <Button
+            disabled={product.stock === 0}
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(product);
+              navigate('checkout');
+            }}
+            className="flex-1 bg-[#B87333] hover:bg-[#9E6329] text-white text-xs disabled:opacity-50 rounded-lg"
+            size="sm"
+          >
+            <Zap className="mr-1.5 h-3.5 w-3.5" />
+            Buy Now
+          </Button>
+        </div>
       </div>
     </motion.div>
   );

@@ -45,7 +45,7 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md
           key={i}
           className={`${sizeClass} ${
             i < Math.round(rating)
-              ? 'fill-[#C9A96E] text-[#C9A96E]'
+              ? 'fill-[#B87333] text-[#B87333]'
               : 'text-gray-200'
           }`}
         />
@@ -56,9 +56,9 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md
 
 function getCategoryLabel(category: string) {
   const map: Record<string, string> = {
-    zodiac: 'Zodiac Sign Chain',
-    custom: 'Custom Chain',
-    stylish: 'Stylish Chain',
+    'portable-fans': 'Portable Fans',
+    fitness: 'Fitness & Wellness',
+    'home-essentials': 'Home Essentials',
   };
   return map[category] || category;
 }
@@ -152,7 +152,7 @@ function WriteReviewForm({ productId }: { productId: string }) {
                 <Star
                   className={`h-6 w-6 ${
                     i < (hoverRating || rating)
-                      ? 'fill-[#C9A96E] text-[#C9A96E]'
+                      ? 'fill-[#B87333] text-[#B87333]'
                       : 'text-gray-200'
                   }`}
                 />
@@ -191,7 +191,7 @@ function WriteReviewForm({ productId }: { productId: string }) {
         <Button
           onClick={handleSubmit}
           disabled={submitting}
-          className="bg-[#C9A96E] hover:bg-[#b89558] text-white"
+          className="bg-[#B87333] hover:bg-[#9E6329] text-white"
         >
           {submitting ? 'Submitting...' : 'Submit Review'}
         </Button>
@@ -210,7 +210,7 @@ function ReviewItem({ review }: { review: Review }) {
 
   return (
     <div className="flex gap-4 py-5 border-b last:border-b-0">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#C9A96E]/10 text-sm font-bold text-[#C9A96E]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#B87333]/10 text-sm font-bold text-[#B87333]">
         {review.userName?.charAt(0)?.toUpperCase() || 'U'}
       </div>
       <div className="flex-1 min-w-0">
@@ -265,7 +265,7 @@ function RelatedProductCard({ product }: { product: Product }) {
           {product.name}
         </h4>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-base font-bold text-[#C9A96E]">
+          <span className="text-base font-bold text-[#B87333]">
             ₹{product.price.toLocaleString('en-IN')}
           </span>
           {product.comparePrice && (
@@ -459,7 +459,7 @@ export default function ProductDetailPage() {
         </p>
         <Button
           onClick={() => navigate('products')}
-          className="mt-6 bg-[#C9A96E] hover:bg-[#b89558] text-white"
+          className="mt-6 bg-[#B87333] hover:bg-[#9E6329] text-white"
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
           Back to Shop
@@ -490,7 +490,7 @@ export default function ProductDetailPage() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink
-                  className="text-gray-500 hover:text-[#C9A96E] cursor-pointer text-sm"
+                  className="text-gray-500 hover:text-[#B87333] cursor-pointer text-sm"
                   onClick={() => navigate('home')}
                 >
                   Home
@@ -499,7 +499,7 @@ export default function ProductDetailPage() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink
-                  className="text-gray-500 hover:text-[#C9A96E] cursor-pointer text-sm"
+                  className="text-gray-500 hover:text-[#B87333] cursor-pointer text-sm"
                   onClick={() => navigate('products')}
                 >
                   Shop
@@ -557,7 +557,7 @@ export default function ProductDetailPage() {
                   onClick={() => setSelectedImageIndex(idx)}
                   className={`shrink-0 h-20 w-20 rounded-lg overflow-hidden border-2 transition-all ${
                     selectedImageIndex === idx
-                      ? 'border-[#C9A96E] shadow-md'
+                      ? 'border-[#B87333] shadow-md'
                       : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
                 >
@@ -575,7 +575,7 @@ export default function ProductDetailPage() {
           {/* ─── Right: Product Info ───────────────────────────────── */}
           <div className="space-y-5">
             {/* Category badge */}
-            <Badge className="bg-[#C9A96E]/10 text-[#C9A96E] hover:bg-[#C9A96E]/15 text-xs font-medium border-0">
+            <Badge className="bg-[#B87333]/10 text-[#B87333] hover:bg-[#B87333]/15 text-xs font-medium border-0">
               {getCategoryLabel(product.category)}
             </Badge>
 
@@ -594,7 +594,7 @@ export default function ProductDetailPage() {
 
             {/* Price */}
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-[#C9A96E]">
+              <span className="text-3xl font-bold text-[#B87333]">
                 ₹{product.price.toLocaleString('en-IN')}
               </span>
               {product.comparePrice && (
@@ -690,7 +690,7 @@ export default function ProductDetailPage() {
               <Button
                 onClick={handleBuyNow}
                 disabled={product.stock === 0}
-                className="flex-1 bg-[#C9A96E] hover:bg-[#b89558] text-white h-12 text-sm font-semibold disabled:opacity-50"
+                className="flex-1 bg-[#B87333] hover:bg-[#9E6329] text-white h-12 text-sm font-semibold disabled:opacity-50"
               >
                 Buy Now
               </Button>
@@ -702,7 +702,7 @@ export default function ProductDetailPage() {
                 <Heart className="mr-1.5 h-4 w-4" />
                 Add to Wishlist
               </Button>
-              <Button variant="ghost" size="sm" className="text-gray-500 hover:text-[#C9A96E]">
+              <Button variant="ghost" size="sm" className="text-gray-500 hover:text-[#B87333]">
                 <Share2 className="mr-1.5 h-4 w-4" />
                 Share
               </Button>
@@ -717,7 +717,7 @@ export default function ProductDetailPage() {
                 { icon: UserIcon, label: 'Support', desc: '24/7 assistance' },
               ].map((feat) => (
                 <div key={feat.label} className="flex items-start gap-3 rounded-lg bg-[#FAF8F5] p-3">
-                  <feat.icon className="h-5 w-5 text-[#C9A96E] shrink-0 mt-0.5" />
+                  <feat.icon className="h-5 w-5 text-[#B87333] shrink-0 mt-0.5" />
                   <div>
                     <p className="text-xs font-semibold text-[#1A1A1A]">{feat.label}</p>
                     <p className="text-[10px] text-gray-500">{feat.desc}</p>
@@ -734,13 +734,13 @@ export default function ProductDetailPage() {
             <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0 h-auto">
               <TabsTrigger
                 value="description"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#C9A96E] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-sm font-medium text-gray-500 data-[state=active]:text-[#C9A96E] px-4 pb-3"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#B87333] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-sm font-medium text-gray-500 data-[state=active]:text-[#B87333] px-4 pb-3"
               >
                 Description
               </TabsTrigger>
               <TabsTrigger
                 value="reviews"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#C9A96E] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-sm font-medium text-gray-500 data-[state=active]:text-[#C9A96E] px-4 pb-3"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#B87333] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-sm font-medium text-gray-500 data-[state=active]:text-[#B87333] px-4 pb-3"
               >
                 Reviews ({displayReviews.length})
               </TabsTrigger>
@@ -774,11 +774,11 @@ export default function ProductDetailPage() {
                   </div>
                   <div className="rounded-lg border p-4">
                     <h4 className="text-sm font-semibold text-[#1A1A1A] mb-2">
-                      Why Choose LuxeChains?
+                      Why Choose IndiCore Originals?
                     </h4>
                     <ul className="space-y-1.5 text-sm text-gray-600">
-                      <li>• Premium quality materials</li>
-                      <li>• Handcrafted with care</li>
+                      <li>• Premium quality products</li>
+                      <li>• Rooted in Indian heritage</li>
                       <li>• Free shipping across India</li>
                       <li>• 7-day easy returns</li>
                     </ul>
@@ -812,10 +812,10 @@ export default function ProductDetailPage() {
                       return (
                         <div key={star} className="flex items-center gap-2 text-xs">
                           <span className="w-6 text-gray-500">{star}</span>
-                          <Star className="h-3 w-3 fill-[#C9A96E] text-[#C9A96E]" />
+                          <Star className="h-3 w-3 fill-[#B87333] text-[#B87333]" />
                           <div className="flex-1 h-2 rounded-full bg-gray-200 overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-[#C9A96E] transition-all"
+                              className="h-full rounded-full bg-[#B87333] transition-all"
                               style={{ width: `${pct}%` }}
                             />
                           </div>
@@ -857,7 +857,7 @@ export default function ProductDetailPage() {
               <Button
                 variant="ghost"
                 onClick={() => navigate('products', { category: product.category })}
-                className="text-[#C9A96E] hover:text-[#b89558] text-sm font-medium hidden sm:flex"
+                className="text-[#B87333] hover:text-[#b89558] text-sm font-medium hidden sm:flex"
               >
                 View All <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
@@ -883,7 +883,7 @@ const SAMPLE_REVIEWS: Review[] = [
     userName: 'Priya Sharma',
     rating: 5,
     comment:
-      'Absolutely love this piece! The quality is exceptional and it looks even better in person. The craftsmanship is top-notch. Would definitely recommend to anyone looking for premium jewelry.',
+      'Absolutely love this product! The quality is exceptional and it works even better than expected. IndiCore Originals has become my go-to brand for premium products.',
     createdAt: '2024-11-15T10:30:00Z',
   },
   {
@@ -892,7 +892,7 @@ const SAMPLE_REVIEWS: Review[] = [
     userName: 'Ananya Patel',
     rating: 4,
     comment:
-      'Great quality and fast delivery. The chain has a nice weight to it and feels premium. Only giving 4 stars because the packaging could be slightly better.',
+      'Great quality and fast delivery. The product feels premium and well-built. Only giving 4 stars because the packaging could be slightly better.',
     createdAt: '2024-11-10T08:15:00Z',
   },
   {
@@ -901,7 +901,7 @@ const SAMPLE_REVIEWS: Review[] = [
     userName: 'Kavya Reddy',
     rating: 5,
     comment:
-      'This was a gift for my sister and she absolutely loved it! The design is beautiful and the material quality is impressive for the price. LuxeChains has become my go-to for jewelry.',
+      'This was a gift for my sister and she absolutely loved it! The design is beautiful and the quality is impressive for the price. Highly recommended!',
     createdAt: '2024-10-28T14:45:00Z',
   },
   {
@@ -910,7 +910,7 @@ const SAMPLE_REVIEWS: Review[] = [
     userName: 'Meera Joshi',
     rating: 4,
     comment:
-      'Beautiful design and great quality. Looks exactly like the pictures. Delivery was quick too. Very happy with my purchase!',
+      'Excellent design and great quality. Looks exactly like the pictures. Delivery was quick too. Very happy with my purchase!',
     createdAt: '2024-10-20T09:00:00Z',
   },
 ];

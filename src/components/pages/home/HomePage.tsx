@@ -631,25 +631,25 @@ export default function HomePage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
-                title: 'Heritage Collection',
-                desc: 'Timeless designs inspired by India\'s rich artistic traditions and cultural legacy.',
-                icon: Gem,
-                category: 'heritage',
-                image: '/products/heritage-section.png',
-              },
-              {
-                title: 'Tech Series',
-                desc: 'Modern precision-engineered products for the contemporary lifestyle.',
+                title: 'Portable Fans',
+                desc: 'Stay cool anywhere with our range of rechargeable desk fans, neck fans, and portable cooling solutions.',
                 icon: Cpu,
-                category: 'tech',
-                image: '/products/hero-flagship.png',
+                category: 'portable-fans',
+                image: '/products/neck-fan.png',
               },
               {
-                title: 'Limited Edition',
-                desc: 'Exclusive drops in small batches. Once they\'re gone, they\'re gone.',
-                icon: Sparkles,
-                category: 'limited',
-                image: '/products/hero-flagship.png',
+                title: 'Fitness & Wellness',
+                desc: 'Premium fitness gear designed to support your health goals. Sweat belts, trainers, and more.',
+                icon: Award,
+                category: 'fitness',
+                image: '/products/sweat-belt.png',
+              },
+              {
+                title: 'Home Essentials',
+                desc: 'Smart kitchen and home gadgets that make everyday life easier and more efficient.',
+                icon: Zap,
+                category: 'home-essentials',
+                image: '/products/bag-sealer.png',
               },
             ].map((cat, i) => (
               <AnimatedSection key={cat.category} delay={i * 0.1}>

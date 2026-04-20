@@ -48,38 +48,46 @@ import { useAuthStore } from '@/lib/store';
 import type { Product } from '@/lib/types';
 
 const categories = [
-  'Zodiac Sign Chain',
-  'Custom Chain',
-  'Stylish Chain',
+  'Portable Fans',
+  'Fitness & Wellness',
+  'Home Essentials',
 ];
 
 const fallbackProducts: Product[] = [
   {
-    id: '1', name: 'Aries Zodiac Chain', slug: 'aries-zodiac-chain', description: 'Bold Aries zodiac sign pendant chain in gold finish.',
-    price: 2499, comparePrice: 3999, category: 'Zodiac Sign Chain', images: ['/products/zodiac-aries.png'],
-    stock: 25, featured: true, trending: true, rating: 4.5, reviewCount: 12, createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
+    id: '1', name: 'Mini Portable Rechargeable Handheld Desk Fan', slug: 'portable-desk-fan', description: 'Ultra-portable rechargeable desk fan with cute compact design and sturdy base. Perfect for office, travel, and home.',
+    price: 599, comparePrice: 1299, category: 'portable-fans', images: ['/products/portable-desk-fan.png'],
+    stock: 50, featured: true, trending: true, rating: 4.5, reviewCount: 12, createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z',
   },
   {
-    id: '2', name: 'Cancer Zodiac Chain', slug: 'cancer-zodiac-chain', description: 'Elegant Cancer zodiac sign pendant chain.',
-    price: 2499, comparePrice: null, category: 'Zodiac Sign Chain', images: ['/products/zodiac-cancer.png'],
-    stock: 18, featured: true, trending: false, rating: 4.2, reviewCount: 8, createdAt: '2025-01-02T00:00:00Z', updatedAt: '2025-01-02T00:00:00Z',
+    id: '2', name: 'Premium Sweat Belt Waist Trainer', slug: 'sweat-belt-waist-trainer', description: 'Non-tearable sauna belt waist trainer for men and women. Premium neoprene material with adjustable fit.',
+    price: 499, comparePrice: 999, category: 'fitness', images: ['/products/sweat-belt.png'],
+    stock: 80, featured: true, trending: true, rating: 4.7, reviewCount: 20, createdAt: '2025-01-02T00:00:00Z', updatedAt: '2025-01-02T00:00:00Z',
   },
   {
-    id: '3', name: 'Custom Name Chain', slug: 'custom-name-chain', description: 'Personalized name pendant chain with custom engraving.',
-    price: 3499, comparePrice: 4999, category: 'Custom Chain', images: ['/products/custom-name.png'],
-    stock: 30, featured: false, trending: true, rating: 4.8, reviewCount: 20, createdAt: '2025-01-03T00:00:00Z', updatedAt: '2025-01-03T00:00:00Z',
+    id: '3', name: 'Portable Mini 2-in-1 Bag Sealer with Cutter', slug: 'portable-bag-sealer', description: 'USB rechargeable heat sealer and cutter for plastic bags, snacks & food storage. Compact and portable.',
+    price: 399, comparePrice: 799, category: 'home-essentials', images: ['/products/bag-sealer.png'],
+    stock: 60, featured: true, trending: false, rating: 4.8, reviewCount: 15, createdAt: '2025-01-03T00:00:00Z', updatedAt: '2025-01-03T00:00:00Z',
   },
   {
-    id: '4', name: 'Layered Gold Chain', slug: 'layered-gold-chain', description: 'Multi-layered gold finish chain for a trendy look.',
-    price: 4999, comparePrice: 6999, category: 'Stylish Chain', images: ['/products/stylish-layered.png'],
-    stock: 15, featured: true, trending: true, rating: 4.7, reviewCount: 15, createdAt: '2025-01-04T00:00:00Z', updatedAt: '2025-01-04T00:00:00Z',
-  },
-  {
-    id: '5', name: 'Leo Zodiac Chain', slug: 'leo-zodiac-chain', description: 'Majestic Leo zodiac sign pendant chain.',
-    price: 2499, comparePrice: null, category: 'Zodiac Sign Chain', images: ['/products/zodiac-leo.png'],
-    stock: 22, featured: false, trending: false, rating: 4.3, reviewCount: 6, createdAt: '2025-01-05T00:00:00Z', updatedAt: '2025-01-05T00:00:00Z',
+    id: '4', name: 'EVERAIRY Rechargeable Bladeless Neck Fan', slug: 'neck-fan-bladeless', description: '7Hrs playtime 1200mAh USB charging bladeless neck fan. 3 speed settings, ultra-low noise, hands-free cooling.',
+    price: 899, comparePrice: 1599, category: 'portable-fans', images: ['/products/neck-fan.png'],
+    stock: 40, featured: true, trending: true, rating: 4.6, reviewCount: 10, createdAt: '2025-01-04T00:00:00Z', updatedAt: '2025-01-04T00:00:00Z',
   },
 ];
+
+// Category value mapping (display name → slug)
+const categoryToSlug: Record<string, string> = {
+  'Portable Fans': 'portable-fans',
+  'Fitness & Wellness': 'fitness',
+  'Home Essentials': 'home-essentials',
+};
+
+const slugToCategory: Record<string, string> = {
+  'portable-fans': 'Portable Fans',
+  'fitness': 'Fitness & Wellness',
+  'home-essentials': 'Home Essentials',
+};
 
 interface ProductFormData {
   name: string;
@@ -96,7 +104,7 @@ interface ProductFormData {
 const emptyForm: ProductFormData = {
   name: '',
   description: '',
-  category: 'Zodiac Sign Chain',
+  category: 'Portable Fans',
   price: 0,
   comparePrice: 0,
   stock: 0,
@@ -208,10 +216,12 @@ export default function AdminProducts() {
 
   const openEditDialog = (product: Product) => {
     setEditingProduct(product);
+    // Convert slug to display name for the form
+    const displayCategory = slugToCategory[product.category] || product.category;
     setForm({
       name: product.name,
       description: product.description,
-      category: product.category,
+      category: displayCategory,
       price: product.price,
       comparePrice: product.comparePrice || 0,
       stock: product.stock,
@@ -272,8 +282,11 @@ export default function AdminProducts() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Convert display name to slug for API
+      const categorySlug = categoryToSlug[form.category] || form.category.toLowerCase().replace(/\s+/g, '-');
       const body = {
         ...form,
+        category: categorySlug,
         comparePrice: form.comparePrice || null,
       };
       const headers: Record<string, string> = {
@@ -316,6 +329,10 @@ export default function AdminProducts() {
     } catch {
       // silently fail
     }
+  };
+
+  const getCategoryDisplay = (cat: string) => {
+    return slugToCategory[cat] || cat;
   };
 
   return (
@@ -391,7 +408,7 @@ export default function AdminProducts() {
                       {product.name}
                     </TableCell>
                     <TableCell className="hidden md:table-cell text-muted-foreground">
-                      {product.category}
+                      {getCategoryDisplay(product.category)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex flex-col items-end">

@@ -499,3 +499,46 @@ Stage Summary:
 - 2 AI-generated images for hero and heritage sections
 - ESLint passes cleanly (0 errors)
 - App compiles and serves successfully
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Replace necklace products with 4 new premium products and update admin dashboard
+
+Work Log:
+- Generated 4 AI product images: portable-desk-fan.png, sweat-belt.png, bag-sealer.png, neck-fan.png
+- Completely rewrote /src/app/api/seed/route.ts with 4 new products:
+  1. Mini Portable Rechargeable Handheld Desk Fan (₹599, category: portable-fans)
+  2. Premium Sweat Belt Waist Trainer (₹499, category: fitness)
+  3. Portable Mini 2-in-1 Bag Sealer with Cutter (₹399, category: home-essentials)
+  4. EVERAIRY Rechargeable Bladeless Neck Fan (₹899, category: portable-fans)
+- Reset database and reseeded with new product data (4 products, 8 reviews, 3 coupons)
+- Updated ProductListingPage.tsx:
+  - Changed CATEGORIES from Zodiac/Custom/Stylish to Portable Fans/Fitness & Wellness/Home Essentials
+  - Added getCategoryLabel helper function
+  - Updated price range max from 10000 to 2000
+  - Replaced all gold (#C9A96E) colors with copper (#B87333) theme
+  - Updated description text from "necklaces and chains" to "premium products"
+- Updated ProductDetailPage.tsx:
+  - Updated getCategoryLabel with new category mapping
+  - Replaced "Why Choose LuxeChains?" with "Why Choose IndiCore Originals?"
+  - Updated sample reviews to remove jewelry references
+  - Replaced all gold colors with copper theme
+- Completely rewrote AdminProducts.tsx:
+  - Updated categories array to new product categories
+  - Updated fallback products to match new product catalog
+  - Added categoryToSlug/slugToCategory mapping for admin form
+  - Updated default form category to 'Portable Fans'
+- Updated HomePage.tsx categories section:
+  - Heritage Collection/Tech Series/Limited Edition → Portable Fans/Fitness & Wellness/Home Essentials
+  - Updated category images to match new product images
+  - Updated category descriptions
+- ESLint passes with 0 errors
+
+Stage Summary:
+- All 12 old necklace products removed from database
+- 4 new premium products added with AI-generated images
+- New categories: portable-fans, fitness, home-essentials
+- All frontend pages updated: Shop listing, Product detail, Admin dashboard, Homepage
+- Color theme fully consistent with copper (#B87333) palette
+- Admin dashboard shows new products and allows CRUD with correct categories

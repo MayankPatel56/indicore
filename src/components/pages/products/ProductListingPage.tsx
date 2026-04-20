@@ -38,12 +38,22 @@ import { Separator } from '@/components/ui/separator';
 import { useNavigationStore, useCartStore } from '@/lib/store';
 import type { Product } from '@/lib/types';
 
+// ─── Helpers ──────────────────────────────────────────────────────────
+function getCategoryLabel(category: string) {
+  const map: Record<string, string> = {
+    'portable-fans': 'Portable Fans',
+    fitness: 'Fitness & Wellness',
+    'home-essentials': 'Home Essentials',
+  };
+  return map[category] || category;
+}
+
 // ─── Constants ────────────────────────────────────────────────────────
 const CATEGORIES = [
   { label: 'All', value: '' },
-  { label: 'Zodiac Sign Chain', value: 'zodiac' },
-  { label: 'Custom Chain', value: 'custom' },
-  { label: 'Stylish Chain', value: 'stylish' },
+  { label: 'Portable Fans', value: 'portable-fans' },
+  { label: 'Fitness & Wellness', value: 'fitness' },
+  { label: 'Home Essentials', value: 'home-essentials' },
 ];
 
 const SORT_OPTIONS = [
@@ -74,7 +84,7 @@ function ProductCard({ product }: { product: Product }) {
   const navigate = useNavigationStore((s) => s.navigate);
   const addToCart = useCartStore((s) => s.addItem);
 
-  const categoryLabel = CATEGORIES.find((c) => c.value === product.category)?.label ?? product.category;
+  const categoryLabel = getCategoryLabel(product.category);
 
   return (
     <motion.div
@@ -121,7 +131,7 @@ function ProductCard({ product }: { product: Product }) {
               key={i}
               className={`h-3 w-3 ${
                 i < Math.round(product.rating)
-                  ? 'fill-[#C9A96E] text-[#C9A96E]'
+                  ? 'fill-[#B87333] text-[#B87333]'
                   : 'text-gray-200'
               }`}
             />
@@ -131,7 +141,7 @@ function ProductCard({ product }: { product: Product }) {
           </span>
         </div>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-base font-bold text-[#C9A96E]">
+          <span className="text-base font-bold text-[#B87333]">
             ₹{product.price.toLocaleString('en-IN')}
           </span>
           {product.comparePrice && (
@@ -216,8 +226,8 @@ function FilterControls({
               onClick={() => setCategory(cat.value)}
               className={
                 category === cat.value
-                  ? 'bg-[#C9A96E] hover:bg-[#b89558] text-white border-[#C9A96E] text-xs'
-                  : 'border-gray-200 text-xs hover:border-[#C9A96E] hover:text-[#C9A96E]'
+                  ? 'bg-[#B87333] hover:bg-[#9E6329] text-white border-[#B87333] text-xs'
+                  : 'border-gray-200 text-xs hover:border-[#B87333] hover:text-[#B87333]'
               }
             >
               {cat.label}
@@ -239,7 +249,7 @@ function FilterControls({
           step={100}
           value={priceRange}
           onValueChange={setPriceRange}
-          className="w-full [&_[data-slot=slider-range]]:bg-[#C9A96E] [&_[data-slot=slider-thumb]]:border-[#C9A96E]"
+          className="w-full [&_[data-slot=slider-range]]:bg-[#B87333] [&_[data-slot=slider-thumb]]:border-[#B87333]"
         />
         <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
           <span>₹{priceRange[0].toLocaleString('en-IN')}</span>
@@ -327,7 +337,7 @@ function Pagination({
             size="icon"
             className={`h-9 w-9 text-sm ${
               currentPage === page
-                ? 'bg-[#C9A96E] hover:bg-[#b89558] text-white border-[#C9A96E]'
+                ? 'bg-[#B87333] hover:bg-[#9E6329] text-white border-[#B87333]'
                 : ''
             }`}
             onClick={() => onPageChange(page)}
@@ -358,7 +368,7 @@ export default function ProductListingPage() {
   // Filter & sort state
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState(params.category || '');
-  const [priceRange, setPriceRange] = useState<number[]>([0, 10000]);
+  const [priceRange, setPriceRange] = useState<number[]>([0, 2000]);
   const [sortBy, setSortBy] = useState(params.sort || 'popularity');
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -442,7 +452,7 @@ export default function ProductListingPage() {
   const clearFilters = () => {
     setSearchQuery('');
     setCategory('');
-    setPriceRange([0, 10000]);
+    setPriceRange([0, 2000]);
     setSortBy('popularity');
     setCurrentPage(1);
   };
@@ -461,7 +471,7 @@ export default function ProductListingPage() {
             Shop All Products
           </h1>
           <p className="mt-2 text-sm text-gray-500">
-            Browse our complete collection of premium necklaces and chains
+            Browse our curated collection of premium products
           </p>
         </div>
       </div>
@@ -511,7 +521,7 @@ export default function ProductListingPage() {
                 <SlidersHorizontal className="mr-2 h-4 w-4" />
                 Filters
                 {activeFiltersCount > 0 && (
-                  <span className="ml-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#C9A96E] text-[10px] font-bold text-white">
+                  <span className="ml-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#B87333] text-[10px] font-bold text-white">
                     {activeFiltersCount}
                   </span>
                 )}
@@ -552,8 +562,8 @@ export default function ProductListingPage() {
                 onClick={() => setCategory(cat.value)}
                 className={
                   category === cat.value
-                    ? 'bg-[#C9A96E] hover:bg-[#b89558] text-white border-[#C9A96E] text-xs'
-                    : 'border-gray-200 text-xs hover:border-[#C9A96E] hover:text-[#C9A96E]'
+                    ? 'bg-[#B87333] hover:bg-[#9E6329] text-white border-[#B87333] text-xs'
+                    : 'border-gray-200 text-xs hover:border-[#B87333] hover:text-[#B87333]'
                 }
               >
                 {cat.label}
@@ -570,7 +580,7 @@ export default function ProductListingPage() {
               step={100}
               value={priceRange}
               onValueChange={setPriceRange}
-              className="w-40 [&_[data-slot=slider-range]]:bg-[#C9A96E] [&_[data-slot=slider-thumb]]:border-[#C9A96E]"
+              className="w-40 [&_[data-slot=slider-range]]:bg-[#B87333] [&_[data-slot=slider-thumb]]:border-[#B87333]"
             />
             <span className="text-xs font-medium text-[#1A1A1A] whitespace-nowrap">
               ₹{priceRange[0].toLocaleString('en-IN')} — ₹{priceRange[1].toLocaleString('en-IN')}
@@ -660,7 +670,7 @@ export default function ProductListingPage() {
                 // Re-trigger by changing page
                 setCurrentPage((p) => p);
               }}
-              className="mt-4 bg-[#C9A96E] hover:bg-[#b89558] text-white"
+              className="mt-4 bg-[#B87333] hover:bg-[#9E6329] text-white"
             >
               Try Again
             </Button>
@@ -681,7 +691,7 @@ export default function ProductListingPage() {
             </p>
             <Button
               onClick={clearFilters}
-              className="mt-4 bg-[#C9A96E] hover:bg-[#b89558] text-white"
+              className="mt-4 bg-[#B87333] hover:bg-[#9E6329] text-white"
             >
               Clear All Filters
             </Button>

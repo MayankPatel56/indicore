@@ -82,7 +82,7 @@ export default function Header() {
           <img
             src="/logo.png"
             alt="IndiCore Originals"
-            className="h-10 w-auto"
+            className="h-18 w-auto"
           />
         </button>
 

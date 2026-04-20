@@ -187,7 +187,9 @@ export default function AdminProducts() {
       const res = await fetch('/api/products');
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data)) setProducts(data);
+        // API returns { products: [...], total, page, limit } or an array
+        const list = Array.isArray(data) ? data : data.products ?? [];
+        setProducts(list);
       }
     } catch {
       // fallback
@@ -206,7 +208,7 @@ export default function AdminProducts() {
       p.category.toLowerCase().includes(search.toLowerCase())
   );
 
-  const displayProducts = filteredProducts.length > 0 ? filteredProducts : (search ? [] : fallbackProducts);
+  const displayProducts = filteredProducts.length > 0 ? filteredProducts : (search ? [] : []);
 
   const openCreateDialog = () => {
     setEditingProduct(null);
@@ -279,15 +281,31 @@ export default function AdminProducts() {
     }
   };
 
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 80);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
       // Convert display name to slug for API
       const categorySlug = categoryToSlug[form.category] || form.category.toLowerCase().replace(/\s+/g, '-');
-      const body = {
-        ...form,
+      const body: Record<string, unknown> = {
+        name: form.name,
+        description: form.description,
         category: categorySlug,
+        price: form.price,
         comparePrice: form.comparePrice || null,
+        stock: form.stock,
+        featured: form.featured,
+        trending: form.trending,
+        images: form.images,
       };
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -295,22 +313,28 @@ export default function AdminProducts() {
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
       if (editingProduct) {
+        body.slug = editingProduct.slug;
         await fetch(`/api/products/${editingProduct.id}`, {
           method: 'PUT',
           headers,
           body: JSON.stringify(body),
         });
       } else {
-        await fetch('/api/products', {
+        body.slug = generateSlug(form.name);
+        const res = await fetch('/api/products', {
           method: 'POST',
           headers,
           body: JSON.stringify(body),
         });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => null);
+          console.error('Failed to create product:', res.status, errData);
+        }
       }
       fetchProducts();
       setDialogOpen(false);
-    } catch {
-      // silently fail
+    } catch (err) {
+      console.error('Save error:', err);
     } finally {
       setSaving(false);
     }

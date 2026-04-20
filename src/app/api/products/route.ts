@@ -85,14 +85,23 @@ export async function POST(request: NextRequest) {
       images, stock, featured, trending,
     } = body;
 
-    if (!name || !slug || !description || !price || !category) {
-      return NextResponse.json({ error: 'Name, slug, description, price, and category are required' }, { status: 400 });
+    if (!name || !description || !price || !category) {
+      return NextResponse.json({ error: 'Name, description, price, and category are required' }, { status: 400 });
     }
+
+    // Auto-generate slug from name if not provided
+    const productSlug = slug || name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 80);
 
     const product = await db.product.create({
       data: {
         name,
-        slug,
+        slug: productSlug,
         description,
         price: parseFloat(price),
         comparePrice: comparePrice ? parseFloat(comparePrice) : null,

@@ -117,3 +117,23 @@ export interface Banner {
 }
 
 export type PaymentMethod = 'upi' | 'cod';
+
+export type ProfileSection = 'profile' | 'orders' | 'addresses' | 'wishlist' | 'security' | 'settings';
+
+export interface WishlistItem {
+  id: string;
+  userId: string;
+  productId: string;
+  createdAt: string;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    comparePrice?: number | null;
+    images: string[];
+    stock: number;
+    rating: number;
+    reviewCount: number;
+  };
+}

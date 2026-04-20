@@ -17,6 +17,18 @@ import {
   LogOut,
   Package,
   ChevronRight,
+  ChevronLeft,
+  Heart,
+  Shield,
+  Settings,
+  Home,
+  Store,
+  Star,
+  ShoppingCart,
+  AlertTriangle,
+  CalendarDays,
+  Diamond,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -24,16 +36,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -42,17 +51,31 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { useNavigationStore, useAuthStore } from '@/lib/store';
-import type { Address, Order } from '@/lib/types';
+  useNavigationStore,
+  useAuthStore,
+  useCartStore,
+  useWishlistStore,
+} from '@/lib/store';
+import type {
+  ProfileSection,
+  Address,
+  Order,
+  WishlistItem,
+  Product,
+} from '@/lib/types';
 
 // ==================== Form Schemas ====================
 
@@ -72,6 +95,7 @@ const addressSchema = z.object({
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
   pincode: z.string().min(1, 'Pincode is required'),
+  isDefault: z.boolean().optional(),
 });
 
 type AddressFormValues = z.infer<typeof addressSchema>;
@@ -92,12 +116,23 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 // ==================== Status Badge Config ====================
 
 const statusConfig: Record<string, { label: string; className: string }> = {
-  pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-  confirmed: { label: 'Confirmed', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  shipped: { label: 'Shipped', className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  delivered: { label: 'Delivered', className: 'bg-green-100 text-green-800 border-green-200' },
-  cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800 border-red-200' },
+  pending: { label: 'Pending', className: 'bg-amber-50 text-amber-700 border-amber-200' },
+  confirmed: { label: 'Confirmed', className: 'bg-sky-50 text-sky-700 border-sky-200' },
+  shipped: { label: 'Shipped', className: 'bg-violet-50 text-violet-700 border-violet-200' },
+  delivered: { label: 'Delivered', className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  cancelled: { label: 'Cancelled', className: 'bg-red-50 text-red-700 border-red-200' },
 };
+
+// ==================== Menu Items ====================
+
+const menuItems: { id: ProfileSection; label: string; icon: React.ReactNode; description: string }[] = [
+  { id: 'profile', label: 'Edit Profile', icon: <User className="h-5 w-5" />, description: 'Update your personal info' },
+  { id: 'orders', label: 'Order History', icon: <ShoppingBag className="h-5 w-5" />, description: 'Track and view orders' },
+  { id: 'addresses', label: 'Manage Addresses', icon: <MapPin className="h-5 w-5" />, description: 'Saved delivery addresses' },
+  { id: 'wishlist', label: 'Wishlist', icon: <Heart className="h-5 w-5" />, description: 'Your favourite items' },
+  { id: 'security', label: 'Security', icon: <Shield className="h-5 w-5" />, description: 'Password & privacy' },
+  { id: 'settings', label: 'Settings', icon: <Settings className="h-5 w-5" />, description: 'Account preferences' },
+];
 
 // ==================== Address Dialog ====================
 
@@ -121,6 +156,8 @@ function AddressDialog({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
@@ -133,8 +170,11 @@ function AddressDialog({
       city: '',
       state: '',
       pincode: '',
+      isDefault: false,
     },
   });
+
+  const isDefaultWatch = watch('isDefault');
 
   useEffect(() => {
     if (address) {
@@ -147,6 +187,7 @@ function AddressDialog({
         city: address.city,
         state: address.state,
         pincode: address.pincode,
+        isDefault: address.isDefault,
       });
     } else {
       reset({
@@ -158,6 +199,7 @@ function AddressDialog({
         city: '',
         state: '',
         pincode: '',
+        isDefault: false,
       });
     }
   }, [address, reset]);
@@ -192,7 +234,7 @@ function AddressDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg mx-4">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit Address' : 'Add New Address'}</DialogTitle>
           <DialogDescription>
@@ -208,43 +250,37 @@ function AddressDialog({
               <Input
                 id="addr-label"
                 placeholder="Home, Office..."
-                className="h-9 border-[#1A1A1A]/20"
+                className="h-10 border-[#1A1A1A]/15 rounded-lg"
                 {...register('label')}
               />
             </div>
             <div className="space-y-2 col-span-2 sm:col-span-1">
-              <Label htmlFor="addr-name" className="text-sm">
-                Full Name
-              </Label>
+              <Label htmlFor="addr-name" className="text-sm">Full Name</Label>
               <Input
                 id="addr-name"
                 placeholder="John Doe"
-                className="h-9 border-[#1A1A1A]/20"
+                className="h-10 border-[#1A1A1A]/15 rounded-lg"
                 {...register('name')}
               />
               {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="addr-phone" className="text-sm">
-              Phone
-            </Label>
+            <Label htmlFor="addr-phone" className="text-sm">Phone</Label>
             <Input
               id="addr-phone"
               placeholder="+91 98765 43210"
-              className="h-9 border-[#1A1A1A]/20"
+              className="h-10 border-[#1A1A1A]/15 rounded-lg"
               {...register('phone')}
             />
             {errors.phone && <p className="text-xs text-red-500">{errors.phone.message}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="addr-line1" className="text-sm">
-              Address Line 1
-            </Label>
+            <Label htmlFor="addr-line1" className="text-sm">Address Line 1</Label>
             <Input
               id="addr-line1"
               placeholder="House no, Building, Street"
-              className="h-9 border-[#1A1A1A]/20"
+              className="h-10 border-[#1A1A1A]/15 rounded-lg"
               {...register('line1')}
             />
             {errors.line1 && <p className="text-xs text-red-500">{errors.line1.message}</p>}
@@ -256,67 +292,69 @@ function AddressDialog({
             <Input
               id="addr-line2"
               placeholder="Landmark, Area"
-              className="h-9 border-[#1A1A1A]/20"
+              className="h-10 border-[#1A1A1A]/15 rounded-lg"
               {...register('line2')}
             />
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="addr-city" className="text-sm">
-                City
-              </Label>
+              <Label htmlFor="addr-city" className="text-sm">City</Label>
               <Input
                 id="addr-city"
                 placeholder="Mumbai"
-                className="h-9 border-[#1A1A1A]/20"
+                className="h-10 border-[#1A1A1A]/15 rounded-lg"
                 {...register('city')}
               />
               {errors.city && <p className="text-xs text-red-500">{errors.city.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="addr-state" className="text-sm">
-                State
-              </Label>
+              <Label htmlFor="addr-state" className="text-sm">State</Label>
               <Input
                 id="addr-state"
-                placeholder="Maharashtra"
-                className="h-9 border-[#1A1A1A]/20"
+                placeholder="MH"
+                className="h-10 border-[#1A1A1A]/15 rounded-lg"
                 {...register('state')}
               />
               {errors.state && <p className="text-xs text-red-500">{errors.state.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="addr-pincode" className="text-sm">
-                Pincode
-              </Label>
+              <Label htmlFor="addr-pincode" className="text-sm">Pincode</Label>
               <Input
                 id="addr-pincode"
                 placeholder="400001"
-                className="h-9 border-[#1A1A1A]/20"
+                className="h-10 border-[#1A1A1A]/15 rounded-lg"
                 {...register('pincode')}
               />
               {errors.pincode && <p className="text-xs text-red-500">{errors.pincode.message}</p>}
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="addr-default"
+              checked={isDefaultWatch}
+              onCheckedChange={(checked) => setValue('isDefault', checked === true)}
+              className="border-[#C9A96E] data-[state=checked]:bg-[#C9A96E] data-[state=checked]:border-[#C9A96E]"
+            />
+            <Label htmlFor="addr-default" className="text-sm text-[#1A1A1A]/70 cursor-pointer">
+              Set as default address
+            </Label>
           </div>
           <DialogFooter>
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-[#1A1A1A]/20"
+              className="border-[#1A1A1A]/15 rounded-lg"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="bg-[#C9A96E] hover:bg-[#b89558] text-white"
+              className="bg-[#C9A96E] hover:bg-[#b89558] text-white rounded-lg"
             >
               {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
-                </>
+                <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Saving...</>
               ) : isEditing ? (
                 'Update Address'
               ) : (
@@ -330,15 +368,77 @@ function AddressDialog({
   );
 }
 
+// ==================== Bottom Navigation ====================
+
+function BottomNav({ active }: { active: 'home' | 'shop' | 'orders' | 'profile' }) {
+  const navigate = useNavigationStore((s) => s.navigate);
+
+  const tabs = [
+    { id: 'home' as const, label: 'Home', icon: Home },
+    { id: 'shop' as const, label: 'Shop', icon: Store },
+    { id: 'orders' as const, label: 'Orders', icon: ShoppingBag },
+    { id: 'profile' as const, label: 'Profile', icon: User },
+  ];
+
+  const handleTabClick = (id: 'home' | 'shop' | 'orders' | 'profile') => {
+    if (id === 'home') navigate('home');
+    else if (id === 'shop') navigate('products');
+    else if (id === 'orders') navigate('profile');
+    else if (id === 'profile') navigate('profile');
+  };
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#1A1A1A]/8 md:hidden">
+      <div className="flex items-center justify-around h-16 px-2 max-w-lg mx-auto">
+        {tabs.map((tab) => {
+          const isActive = active === tab.id;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => handleTabClick(tab.id)}
+              className="flex flex-col items-center justify-center gap-1 flex-1 py-2 transition-colors"
+            >
+              <Icon
+                className={`h-5 w-5 transition-colors ${
+                  isActive ? 'text-[#C9A96E]' : 'text-[#1A1A1A]/35'
+                }`}
+              />
+              <span
+                className={`text-[10px] font-medium transition-colors ${
+                  isActive ? 'text-[#C9A96E]' : 'text-[#1A1A1A]/35'
+                }`}
+              >
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 // ==================== Main Profile Page ====================
 
 export default function ProfilePage() {
   const navigate = useNavigationStore((s) => s.navigate);
   const { user, isAuthenticated, token, updateProfile, logout } = useAuthStore();
+  const cartAddItem = useCartStore((s) => s.addItem);
+  const wishlistSetItems = useWishlistStore((s) => s.setItems);
+  const wishlistRemoveItem = useWishlistStore((s) => s.removeItem);
+
+  // 'main' shows menu list; any ProfileSection shows that section detail
+  const [activeSection, setActiveSection] = useState<'main' | ProfileSection>('main');
+
+  // Data state
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [loadingWishlist, setLoadingWishlist] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   // Profile edit form
@@ -356,6 +456,7 @@ export default function ProfilePage() {
   // Password change form
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
   const passwordForm = useForm<PasswordFormValues>({
@@ -371,12 +472,34 @@ export default function ProfilePage() {
   const [addressDialogOpen, setAddressDialogOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
+  // Delete account
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('login');
     }
   }, [isAuthenticated, navigate]);
+
+  // Fetch profile
+  const fetchProfile = useCallback(async () => {
+    if (!token) return;
+    setLoadingProfile(true);
+    try {
+      const res = await fetch('/api/auth/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        updateProfile(data);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setLoadingProfile(false);
+    }
+  }, [token, updateProfile]);
 
   // Fetch addresses
   const fetchAddresses = useCallback(async () => {
@@ -388,7 +511,9 @@ export default function ProfilePage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setAddresses(data);
+        if (Array.isArray(data)) {
+          setAddresses(data);
+        }
       }
     } catch {
       // silently fail
@@ -407,7 +532,9 @@ export default function ProfilePage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setOrders(data);
+        if (Array.isArray(data)) {
+          setOrders(data);
+        }
       }
     } catch {
       // silently fail
@@ -416,12 +543,36 @@ export default function ProfilePage() {
     }
   }, [token]);
 
+  // Fetch wishlist
+  const fetchWishlist = useCallback(async () => {
+    if (!token) return;
+    setLoadingWishlist(true);
+    try {
+      const res = await fetch('/api/auth/wishlist', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setWishlistItems(data);
+          wishlistSetItems(data);
+        }
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setLoadingWishlist(false);
+    }
+  }, [token, wishlistSetItems]);
+
   useEffect(() => {
     if (isAuthenticated) {
+      fetchProfile();
       fetchAddresses();
       fetchOrders();
+      fetchWishlist();
     }
-  }, [isAuthenticated, fetchAddresses, fetchOrders]);
+  }, [isAuthenticated, fetchProfile, fetchAddresses, fetchOrders, fetchWishlist]);
 
   // Update profile form when user changes
   useEffect(() => {
@@ -433,6 +584,8 @@ export default function ProfilePage() {
   if (!isAuthenticated || !user) {
     return null;
   }
+
+  // ==================== Handlers ====================
 
   const handleProfileSubmit = async (data: ProfileFormValues) => {
     setProfileLoading(true);
@@ -514,514 +667,867 @@ export default function ProfilePage() {
     setAddressDialogOpen(true);
   };
 
+  const handleRemoveFromWishlist = async (productId: string) => {
+    try {
+      const res = await fetch('/api/auth/wishlist', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId }),
+      });
+
+      if (!res.ok) {
+        const result = await res.json();
+        throw new Error(result.error || 'Failed to remove from wishlist');
+      }
+
+      toast.success('Removed from wishlist!');
+      wishlistRemoveItem(productId);
+      setWishlistItems((prev) => prev.filter((item) => item.productId !== productId));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong');
+    }
+  };
+
+  const handleMoveToCart = (item: WishlistItem) => {
+    const product: Product = {
+      id: item.product.id,
+      name: item.product.name,
+      slug: item.product.slug,
+      description: '',
+      price: item.product.price,
+      comparePrice: item.product.comparePrice ?? null,
+      category: '',
+      images: item.product.images,
+      stock: item.product.stock,
+      featured: false,
+      trending: false,
+      rating: item.product.rating,
+      reviewCount: item.product.reviewCount,
+      createdAt: item.createdAt,
+      updatedAt: item.createdAt,
+    };
+    cartAddItem(product, 1);
+    toast.success('Added to cart!');
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteLoading(true);
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        const result = await res.json();
+        throw new Error(result.error || 'Failed to delete account');
+      }
+
+      toast.success('Account deleted successfully');
+      logout();
+      navigate('home');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('home');
     toast.success('Logged out successfully');
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  // ==================== Helpers ====================
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-IN', {
+  const getInitials = (name: string) =>
+    name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
-  };
 
-  return (
-    <div className="min-h-screen bg-[#FAF8F5]">
-      {/* Breadcrumb */}
-      <div className="mx-auto max-w-5xl px-4 pt-6 sm:px-6 lg:px-8">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                asChild
-                className="cursor-pointer hover:text-[#C9A96E]"
-              >
-                <span onClick={() => navigate('home')}>Home</span>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>My Account</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+  const formatDateShort = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString('en-IN', {
+      month: 'short',
+      year: 'numeric',
+    });
+
+  // ==================== Section: Edit Profile ====================
+  const renderProfileSection = () => (
+    <div className="space-y-5">
+      {loadingProfile ? (
+        <div className="flex items-center gap-4 p-5">
+          <Skeleton className="h-16 w-16 rounded-full" />
+          <div className="space-y-2.5 flex-1">
+            <Skeleton className="h-4 w-36" />
+            <Skeleton className="h-3 w-48" />
+            <Skeleton className="h-3 w-32" />
+          </div>
+        </div>
+      ) : (
+        <Card className="border-[#1A1A1A]/6 shadow-sm rounded-2xl overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex flex-col items-center text-center gap-4 mb-6">
+              <Avatar className="h-20 w-20 bg-[#C9A96E]/10 ring-4 ring-[#C9A96E]/10">
+                <AvatarFallback className="text-xl font-bold text-[#C9A96E] bg-[#C9A96E]/10">
+                  {getInitials(user.name)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-base font-semibold text-[#1A1A1A]">{user.name}</p>
+                <p className="text-sm text-[#1A1A1A]/50">{user.email}</p>
+              </div>
+            </div>
+
+            {isEditingProfile ? (
+              <form onSubmit={profileForm.handleSubmit(handleProfileSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="profile-name" className="text-sm font-medium text-[#1A1A1A]/70">Full Name</Label>
+                  <Input
+                    id="profile-name"
+                    className="h-11 border-[#1A1A1A]/12 rounded-xl"
+                    {...profileForm.register('name')}
+                  />
+                  {profileForm.formState.errors.name && (
+                    <p className="text-xs text-red-500">{profileForm.formState.errors.name.message}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="profile-phone" className="text-sm font-medium text-[#1A1A1A]/70">
+                    Phone <span className="text-[#1A1A1A]/30">(optional)</span>
+                  </Label>
+                  <Input
+                    id="profile-phone"
+                    className="h-11 border-[#1A1A1A]/12 rounded-xl"
+                    {...profileForm.register('phone')}
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={profileLoading}
+                    className="flex-1 bg-[#C9A96E] hover:bg-[#b89558] text-white rounded-xl h-11"
+                  >
+                    {profileLoading ? (
+                      <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Saving...</>
+                    ) : (
+                      'Save Changes'
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1 border-[#1A1A1A]/12 rounded-xl h-11"
+                    onClick={() => {
+                      setIsEditingProfile(false);
+                      profileForm.reset({ name: user.name, phone: user.phone || '' });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-2.5 border-b border-[#1A1A1A]/5">
+                  <span className="text-sm text-[#1A1A1A]/50">Full Name</span>
+                  <span className="text-sm font-medium text-[#1A1A1A]">{user.name}</span>
+                </div>
+                <div className="flex items-center justify-between py-2.5 border-b border-[#1A1A1A]/5">
+                  <span className="text-sm text-[#1A1A1A]/50">Email</span>
+                  <span className="text-sm font-medium text-[#1A1A1A]">{user.email}</span>
+                </div>
+                <div className="flex items-center justify-between py-2.5 border-b border-[#1A1A1A]/5">
+                  <span className="text-sm text-[#1A1A1A]/50">Phone</span>
+                  <span className="text-sm font-medium text-[#1A1A1A]">{user.phone || 'Not provided'}</span>
+                </div>
+                <div className="flex items-center justify-between py-2.5 border-b border-[#1A1A1A]/5">
+                  <span className="text-sm text-[#1A1A1A]/50">Member Since</span>
+                  <span className="text-sm font-medium text-[#1A1A1A]">{formatDate(user.createdAt)}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full mt-4 border-[#C9A96E]/30 text-[#C9A96E] hover:bg-[#C9A96E]/8 rounded-xl h-11"
+                  onClick={() => setIsEditingProfile(true)}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit Profile
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+
+  // ==================== Section: Orders ====================
+  const renderOrdersSection = () => (
+    <div className="space-y-4">
+      {loadingOrders ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="border-[#1A1A1A]/6 shadow-sm rounded-2xl">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-12 w-12 rounded-xl" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-3 w-40" />
+                  </div>
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : orders.length === 0 ? (
+        <Card className="border-[#1A1A1A]/6 shadow-sm rounded-2xl">
+          <CardContent className="py-14 text-center">
+            <div className="w-16 h-16 bg-[#C9A96E]/8 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Package className="h-8 w-8 text-[#C9A96E]/50" />
+            </div>
+            <h3 className="text-base font-semibold text-[#1A1A1A] mb-1">No orders yet</h3>
+            <p className="text-sm text-[#1A1A1A]/45 mb-5">Start shopping to see your orders here</p>
+            <Button
+              onClick={() => navigate('products')}
+              className="bg-[#C9A96E] hover:bg-[#b89558] text-white rounded-xl h-11 px-6"
+            >
+              <ShoppingBag className="h-4 w-4 mr-2" />
+              Shop Now
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {orders.map((order) => {
+            const isExpanded = expandedOrder === order.id;
+            const status = statusConfig[order.status] || statusConfig.pending;
+            let parsedAddress: Record<string, string> | null = null;
+            try {
+              parsedAddress = JSON.parse(order.addressSnapshot);
+            } catch {
+              // ignore
+            }
+
+            return (
+              <Card key={order.id} className="border-[#1A1A1A]/6 shadow-sm rounded-2xl overflow-hidden">
+                <div
+                  className="flex items-center gap-3 p-4 cursor-pointer active:bg-[#FAF8F5] transition-colors"
+                  onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
+                >
+                  {/* Order icon */}
+                  <div className="w-11 h-11 rounded-xl bg-[#C9A96E]/8 flex items-center justify-center flex-shrink-0">
+                    <ShoppingBag className="h-5 w-5 text-[#C9A96E]" />
+                  </div>
+                  {/* Order info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#1A1A1A]">#{order.orderNumber}</p>
+                    <p className="text-xs text-[#1A1A1A]/45 mt-0.5">{formatDate(order.createdAt)}</p>
+                    <p className="text-xs text-[#1A1A1A]/45 mt-0.5">
+                      {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  {/* Status & amount */}
+                  <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                    <Badge className={`${status.className} text-[10px] font-medium border px-2 py-0.5`}>
+                      {status.label}
+                    </Badge>
+                    <p className="text-sm font-bold text-[#1A1A1A]">₹{order.total.toLocaleString('en-IN')}</p>
+                  </div>
+                  {/* Chevron */}
+                  <ChevronRight className={`h-4 w-4 text-[#1A1A1A]/25 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                </div>
+
+                {isExpanded && (
+                  <div className="border-t border-[#1A1A1A]/5 bg-[#FAFAF8] p-4 space-y-4">
+                    {/* Items */}
+                    <div className="space-y-3">
+                      <p className="text-[10px] font-semibold text-[#1A1A1A]/40 uppercase tracking-wider">Items</p>
+                      {order.items.map((item) => (
+                        <div key={item.id} className="flex items-center gap-3 bg-white rounded-xl p-2.5">
+                          <div className="h-12 w-12 rounded-lg bg-[#FAF8F5] overflow-hidden flex-shrink-0">
+                            {item.productImage && (
+                              <img
+                                src={item.productImage}
+                                alt={item.productName}
+                                className="h-full w-full object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-[#1A1A1A] truncate">{item.productName}</p>
+                            <p className="text-xs text-[#1A1A1A]/45 mt-0.5">
+                              Qty: {item.quantity} × ₹{item.price.toLocaleString('en-IN')}
+                            </p>
+                          </div>
+                          <p className="text-sm font-semibold text-[#1A1A1A] flex-shrink-0">
+                            ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Separator className="bg-[#1A1A1A]/6" />
+
+                    {/* Shipping Address */}
+                    {parsedAddress && (
+                      <div>
+                        <p className="text-[10px] font-semibold text-[#1A1A1A]/40 uppercase tracking-wider mb-1.5">Shipping Address</p>
+                        <p className="text-xs text-[#1A1A1A]/60 leading-relaxed">
+                          {parsedAddress.name}{parsedAddress.line1 && `, ${parsedAddress.line1}`}
+                          {parsedAddress.line2 && `, ${parsedAddress.line2}`}
+                          {parsedAddress.city && `, ${parsedAddress.city}`}
+                          {parsedAddress.state && `, ${parsedAddress.state}`}
+                          {parsedAddress.pincode && ` – ${parsedAddress.pincode}`}
+                          {parsedAddress.phone && ` | ${parsedAddress.phone}`}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Price Breakdown */}
+                    <div className="bg-white rounded-xl p-3.5 border border-[#1A1A1A]/5">
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between text-[#1A1A1A]/55">
+                          <span>Subtotal</span>
+                          <span>₹{order.subtotal.toLocaleString('en-IN')}</span>
+                        </div>
+                        {order.discount > 0 && (
+                          <div className="flex justify-between text-emerald-600">
+                            <span>Discount</span>
+                            <span>-₹{order.discount.toLocaleString('en-IN')}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between text-[#1A1A1A]/55">
+                          <span>Shipping</span>
+                          <span>{order.shipping === 0 ? 'FREE' : `₹${order.shipping.toLocaleString('en-IN')}`}</span>
+                        </div>
+                        <Separator className="bg-[#1A1A1A]/6" />
+                        <div className="flex justify-between font-bold text-[#1A1A1A]">
+                          <span>Total</span>
+                          <span>₹{order.total.toLocaleString('en-IN')}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Payment */}
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-[#1A1A1A]/40">Payment</span>
+                      <span className="font-medium text-[#1A1A1A]/70">
+                        {order.paymentMethod === 'upi' ? 'UPI Payment' : 'Cash on Delivery'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  // ==================== Section: Addresses ====================
+  const renderAddressesSection = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-[#1A1A1A]/45">
+          {addresses.length > 0 ? `${addresses.length} saved address${addresses.length !== 1 ? 'es' : ''}` : ''}
+        </p>
+        <Button
+          onClick={() => handleOpenAddressDialog(null)}
+          className="bg-[#C9A96E] hover:bg-[#b89558] text-white rounded-xl h-9 px-4 text-sm"
+          size="sm"
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          Add New
+        </Button>
       </div>
 
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#1A1A1A]">My Account</h1>
-          <p className="mt-1 text-[#1A1A1A]/60">
-            Manage your profile, addresses, and orders
-          </p>
+      {loadingAddresses ? (
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <Card key={i} className="border-[#1A1A1A]/6 shadow-sm rounded-2xl">
+              <CardContent className="p-4 space-y-3">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-3/4" />
+                <div className="flex gap-2 pt-2">
+                  <Skeleton className="h-8 w-16 rounded-lg" />
+                  <Skeleton className="h-8 w-16 rounded-lg" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+      ) : addresses.length === 0 ? (
+        <Card className="border-[#1A1A1A]/6 shadow-sm rounded-2xl">
+          <CardContent className="py-14 text-center">
+            <div className="w-16 h-16 bg-[#C9A96E]/8 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MapPin className="h-8 w-8 text-[#C9A96E]/50" />
+            </div>
+            <h3 className="text-base font-semibold text-[#1A1A1A] mb-1">No addresses yet</h3>
+            <p className="text-sm text-[#1A1A1A]/45 mb-5">Add a delivery address for faster checkout</p>
+            <Button
+              onClick={() => handleOpenAddressDialog(null)}
+              className="bg-[#C9A96E] hover:bg-[#b89558] text-white rounded-xl h-11 px-6"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Address
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {addresses.map((addr) => (
+            <Card
+              key={addr.id}
+              className={`border shadow-sm rounded-2xl overflow-hidden transition-all ${
+                addr.isDefault ? 'border-[#C9A96E]/40 bg-[#C9A96E]/[0.02]' : 'border-[#1A1A1A]/6'
+              }`}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {addr.label && (
+                      <span className="text-xs font-semibold text-[#C9A96E] bg-[#C9A96E]/10 px-2 py-0.5 rounded-full">
+                        {addr.label}
+                      </span>
+                    )}
+                    {addr.isDefault && (
+                      <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                        Default
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleOpenAddressDialog(addr)}
+                      className="p-1.5 rounded-lg hover:bg-[#1A1A1A]/5 transition-colors"
+                    >
+                      <Pencil className="h-3.5 w-3.5 text-[#1A1A1A]/40" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteAddress(addr.id)}
+                      className="p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-[#1A1A1A]/40 hover:text-red-500" />
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-[#1A1A1A]">{addr.name}</p>
+                  <p className="text-xs text-[#1A1A1A]/55 leading-relaxed">
+                    {addr.line1}{addr.line2 && `, ${addr.line2}`}, {addr.city}, {addr.state} – {addr.pincode}
+                  </p>
+                  <p className="text-xs text-[#1A1A1A]/45">{addr.phone}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
-        <Tabs defaultValue="profile" className="space-y-8">
-          <TabsList className="bg-white border border-[#C9A96E]/20">
-            <TabsTrigger value="profile" className="gap-2 data-[state=active]:bg-[#C9A96E]/10 data-[state=active]:text-[#C9A96E]">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Profile</span>
-            </TabsTrigger>
-            <TabsTrigger value="addresses" className="gap-2 data-[state=active]:bg-[#C9A96E]/10 data-[state=active]:text-[#C9A96E]">
-              <MapPin className="h-4 w-4" />
-              <span className="hidden sm:inline">Addresses</span>
-            </TabsTrigger>
-            <TabsTrigger value="orders" className="gap-2 data-[state=active]:bg-[#C9A96E]/10 data-[state=active]:text-[#C9A96E]">
-              <ShoppingBag className="h-4 w-4" />
-              <span className="hidden sm:inline">Orders</span>
-            </TabsTrigger>
-          </TabsList>
+      <AddressDialog
+        open={addressDialogOpen}
+        onOpenChange={setAddressDialogOpen}
+        address={editingAddress}
+        userId={user.id}
+        onSave={fetchAddresses}
+      />
+    </div>
+  );
 
-          {/* ==================== PROFILE TAB ==================== */}
-          <TabsContent value="profile">
-            <div className="grid gap-8 lg:grid-cols-3">
-              {/* Profile Info Card */}
-              <Card className="lg:col-span-1 border-[#C9A96E]/20">
-                <CardContent className="pt-6 flex flex-col items-center text-center">
-                  <Avatar className="h-20 w-20 mb-4 bg-[#C9A96E]/10">
-                    <AvatarFallback className="text-xl font-semibold text-[#C9A96E] bg-[#C9A96E]/10">
+  // ==================== Section: Wishlist ====================
+  const renderWishlistSection = () => (
+    <div className="space-y-4">
+      {loadingWishlist ? (
+        <div className="grid grid-cols-2 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="border-[#1A1A1A]/6 shadow-sm rounded-2xl">
+              <CardContent className="p-3">
+                <Skeleton className="h-36 w-full rounded-xl mb-3" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2 mt-2" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : wishlistItems.length === 0 ? (
+        <Card className="border-[#1A1A1A]/6 shadow-sm rounded-2xl">
+          <CardContent className="py-14 text-center">
+            <div className="w-16 h-16 bg-[#C9A96E]/8 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Heart className="h-8 w-8 text-[#C9A96E]/50" />
+            </div>
+            <h3 className="text-base font-semibold text-[#1A1A1A] mb-1">Wishlist is empty</h3>
+            <p className="text-sm text-[#1A1A1A]/45 mb-5">Save items you love for later</p>
+            <Button
+              onClick={() => navigate('products')}
+              className="bg-[#C9A96E] hover:bg-[#b89558] text-white rounded-xl h-11 px-6"
+            >
+              <Store className="h-4 w-4 mr-2" />
+              Browse Products
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {wishlistItems.map((item) => {
+            const images = Array.isArray(item.product.images) ? item.product.images : [];
+            return (
+              <Card key={item.id} className="border-[#1A1A1A]/6 shadow-sm rounded-2xl overflow-hidden group">
+                <div className="relative aspect-square bg-[#FAF8F5]">
+                  {images.length > 0 && (
+                    <img
+                      src={images[0]}
+                      alt={item.product.name}
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                  <button
+                    onClick={() => handleRemoveFromWishlist(item.productId)}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 shadow-sm flex items-center justify-center hover:bg-red-50 transition-colors"
+                  >
+                    <X className="h-3.5 w-3.5 text-[#1A1A1A]/50" />
+                  </button>
+                </div>
+                <CardContent className="p-3">
+                  <p className="text-xs font-medium text-[#1A1A1A] truncate">{item.product.name}</p>
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    <span className="text-sm font-bold text-[#1A1A1A]">₹{item.product.price.toLocaleString('en-IN')}</span>
+                    {item.product.comparePrice && item.product.comparePrice > item.product.price && (
+                      <span className="text-[10px] text-[#1A1A1A]/35 line-through">
+                        ₹{item.product.comparePrice.toLocaleString('en-IN')}
+                      </span>
+                    )}
+                  </div>
+                  {item.product.stock > 0 ? (
+                    <Button
+                      size="sm"
+                      className="w-full mt-2.5 bg-[#C9A96E] hover:bg-[#b89558] text-white rounded-lg h-8 text-xs"
+                      onClick={() => handleMoveToCart(item)}
+                    >
+                      <ShoppingCart className="h-3 w-3 mr-1" />
+                      Add to Cart
+                    </Button>
+                  ) : (
+                    <p className="text-[10px] text-red-500 font-medium mt-2.5 text-center">Out of Stock</p>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  // ==================== Section: Security ====================
+  const renderSecuritySection = () => (
+    <div className="space-y-4">
+      <Card className="border-[#1A1A1A]/6 shadow-sm rounded-2xl overflow-hidden">
+        <CardHeader className="pb-3 pt-5 px-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#C9A96E]/10 flex items-center justify-center">
+              <Shield className="h-5 w-5 text-[#C9A96E]" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-[#1A1A1A]">Change Password</p>
+              <p className="text-xs text-[#1A1A1A]/45">Update your account password</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="px-5 pb-5">
+          <form onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="current-pw" className="text-sm font-medium text-[#1A1A1A]/70">Current Password</Label>
+              <div className="relative">
+                <Input
+                  id="current-pw"
+                  type={showCurrentPassword ? 'text' : 'password'}
+                  className="h-11 border-[#1A1A1A]/12 rounded-xl pr-10"
+                  {...passwordForm.register('currentPassword')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]/30"
+                >
+                  {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {passwordForm.formState.errors.currentPassword && (
+                <p className="text-xs text-red-500">{passwordForm.formState.errors.currentPassword.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-pw" className="text-sm font-medium text-[#1A1A1A]/70">New Password</Label>
+              <div className="relative">
+                <Input
+                  id="new-pw"
+                  type={showNewPassword ? 'text' : 'password'}
+                  className="h-11 border-[#1A1A1A]/12 rounded-xl pr-10"
+                  {...passwordForm.register('newPassword')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]/30"
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {passwordForm.formState.errors.newPassword && (
+                <p className="text-xs text-red-500">{passwordForm.formState.errors.newPassword.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-pw" className="text-sm font-medium text-[#1A1A1A]/70">Confirm New Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-pw"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  className="h-11 border-[#1A1A1A]/12 rounded-xl pr-10"
+                  {...passwordForm.register('confirmPassword')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]/30"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {passwordForm.formState.errors.confirmPassword && (
+                <p className="text-xs text-red-500">{passwordForm.formState.errors.confirmPassword.message}</p>
+              )}
+            </div>
+            <Button
+              type="submit"
+              disabled={passwordLoading}
+              className="w-full bg-[#C9A96E] hover:bg-[#b89558] text-white rounded-xl h-11"
+            >
+              {passwordLoading ? (
+                <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Updating...</>
+              ) : (
+                'Update Password'
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  // ==================== Section: Settings ====================
+  const renderSettingsSection = () => (
+    <div className="space-y-4">
+      {/* Account Actions */}
+      <Card className="border-[#1A1A1A]/6 shadow-sm rounded-2xl overflow-hidden">
+        <CardContent className="p-0">
+          <div className="divide-y divide-[#1A1A1A]/5">
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-5 py-4 hover:bg-[#FAF8F5] transition-colors"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                <LogOut className="h-5 w-5 text-amber-600" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-[#1A1A1A]">Log Out</p>
+                <p className="text-xs text-[#1A1A1A]/40">Sign out of your account</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-[#1A1A1A]/25" />
+            </button>
+
+            {/* Delete Account */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className="w-full flex items-center gap-3 px-5 py-4 hover:bg-red-50/50 transition-colors">
+                  <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-medium text-red-600">Delete Account</p>
+                    <p className="text-xs text-[#1A1A1A]/40">Permanently delete your account and data</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-[#1A1A1A]/25" />
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="mx-4 rounded-2xl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-base">Delete Account?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-sm text-[#1A1A1A]/60">
+                    This action cannot be undone. All your data including orders, addresses, and wishlist will be permanently deleted.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="gap-2 sm:gap-0">
+                  <AlertDialogCancel className="rounded-xl border-[#1A1A1A]/12">Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    disabled={deleteLoading}
+                    className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
+                  >
+                    {deleteLoading ? (
+                      <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Deleting...</>
+                    ) : (
+                      'Delete Account'
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* App Info */}
+      <Card className="border-[#1A1A1A]/6 shadow-sm rounded-2xl">
+        <CardContent className="p-5 text-center">
+          <div className="w-12 h-12 rounded-xl bg-[#C9A96E]/10 flex items-center justify-center mx-auto mb-3">
+            <Diamond className="h-6 w-6 text-[#C9A96E]" />
+          </div>
+          <p className="text-sm font-semibold text-[#1A1A1A]">LuxeChains</p>
+          <p className="text-xs text-[#1A1A1A]/40 mt-0.5">Premium Necklace Store</p>
+          <p className="text-[10px] text-[#1A1A1A]/30 mt-2">Version 1.0.0</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  // ==================== Section Router ====================
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case 'profile':
+        return renderProfileSection();
+      case 'orders':
+        return renderOrdersSection();
+      case 'addresses':
+        return renderAddressesSection();
+      case 'wishlist':
+        return renderWishlistSection();
+      case 'security':
+        return renderSecuritySection();
+      case 'settings':
+        return renderSettingsSection();
+      default:
+        return null;
+    }
+  };
+
+  const sectionTitle = activeSection === 'main'
+    ? 'Profile'
+    : menuItems.find((m) => m.id === activeSection)?.label || 'Profile';
+
+  // ==================== Main Render ====================
+  return (
+    <div className="min-h-screen bg-[#FAF8F5] pb-20 md:pb-0">
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[#1A1A1A]/5">
+        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
+          {activeSection !== 'main' && (
+            <button
+              onClick={() => setActiveSection('main')}
+              className="w-9 h-9 rounded-xl bg-[#1A1A1A]/5 flex items-center justify-center hover:bg-[#1A1A1A]/8 transition-colors -ml-1"
+            >
+              <ChevronLeft className="h-5 w-5 text-[#1A1A1A]" />
+            </button>
+          )}
+          <h1 className="text-lg font-bold text-[#1A1A1A]">{sectionTitle}</h1>
+        </div>
+      </header>
+
+      <main className="max-w-2xl mx-auto px-4">
+        {activeSection === 'main' ? (
+          <>
+            {/* User Card */}
+            {loadingProfile ? (
+              <div className="mt-5 p-5 bg-white rounded-2xl shadow-sm border border-[#1A1A1A]/6">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-16 w-16 rounded-full" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-5 w-36" />
+                    <Skeleton className="h-3 w-48" />
+                    <Skeleton className="h-3 w-28" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="mt-5 p-5 bg-white rounded-2xl shadow-sm border border-[#1A1A1A]/6 cursor-pointer active:scale-[0.99] transition-transform"
+                onClick={() => setActiveSection('profile')}
+              >
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-16 w-16 bg-[#C9A96E]/10 ring-3 ring-[#C9A96E]/10 flex-shrink-0">
+                    <AvatarFallback className="text-lg font-bold text-[#C9A96E] bg-[#C9A96E]/10">
                       {getInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>
-                  <h2 className="text-lg font-semibold text-[#1A1A1A]">{user.name}</h2>
-                  <p className="text-sm text-[#1A1A1A]/60">{user.email}</p>
-                  {user.phone && (
-                    <p className="text-sm text-[#1A1A1A]/60 mt-1">{user.phone}</p>
-                  )}
-                  <Separator className="my-4" />
-                  <div className="text-xs text-[#1A1A1A]/40">
-                    Member since {formatDate(user.createdAt)}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-semibold text-[#1A1A1A] truncate">{user.name}</p>
+                    <p className="text-sm text-[#1A1A1A]/50 truncate">{user.email}</p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <CalendarDays className="h-3 w-3 text-[#1A1A1A]/30" />
+                      <p className="text-xs text-[#1A1A1A]/35">Member since {formatDateShort(user.createdAt)}</p>
+                    </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    className="mt-4 border-[#C9A96E]/30 text-[#C9A96E] hover:bg-[#C9A96E]/10 w-full"
-                    onClick={() => setIsEditingProfile(!isEditingProfile)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                    {isEditingProfile ? 'Cancel Edit' : 'Edit Profile'}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <div className="lg:col-span-2 space-y-8">
-                {/* Edit Profile Form */}
-                <Card className="border-[#C9A96E]/20">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Personal Information</CardTitle>
-                    <CardDescription>Update your personal details</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {isEditingProfile ? (
-                      <form onSubmit={profileForm.handleSubmit(handleProfileSubmit)} className="space-y-4">
-                        <div className="grid gap-4 sm:grid-cols-2">
-                          <div className="space-y-2">
-                            <Label htmlFor="profile-name" className="text-sm">Full Name</Label>
-                            <Input
-                              id="profile-name"
-                              className="h-9 border-[#1A1A1A]/20"
-                              {...profileForm.register('name')}
-                            />
-                            {profileForm.formState.errors.name && (
-                              <p className="text-xs text-red-500">
-                                {profileForm.formState.errors.name.message}
-                              </p>
-                            )}
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="profile-phone" className="text-sm">
-                              Phone <span className="text-[#1A1A1A]/40">(optional)</span>
-                            </Label>
-                            <Input
-                              id="profile-phone"
-                              className="h-9 border-[#1A1A1A]/20"
-                              {...profileForm.register('phone')}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex gap-3">
-                          <Button
-                            type="submit"
-                            disabled={profileLoading}
-                            className="bg-[#C9A96E] hover:bg-[#b89558] text-white"
-                          >
-                            {profileLoading ? (
-                              <><Loader2 className="h-4 w-4 animate-spin" /> Saving...</>
-                            ) : (
-                              'Save Changes'
-                            )}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="border-[#1A1A1A]/20"
-                            onClick={() => {
-                              setIsEditingProfile(false);
-                              profileForm.reset({ name: user.name, phone: user.phone || '' });
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </form>
-                    ) : (
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div>
-                          <p className="text-xs text-[#1A1A1A]/40 uppercase tracking-wide mb-1">Full Name</p>
-                          <p className="text-sm font-medium text-[#1A1A1A]">{user.name}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-[#1A1A1A]/40 uppercase tracking-wide mb-1">Email</p>
-                          <p className="text-sm font-medium text-[#1A1A1A]">{user.email}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-[#1A1A1A]/40 uppercase tracking-wide mb-1">Phone</p>
-                          <p className="text-sm font-medium text-[#1A1A1A]">{user.phone || 'Not provided'}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-[#1A1A1A]/40 uppercase tracking-wide mb-1">Role</p>
-                          <p className="text-sm font-medium text-[#1A1A1A] capitalize">{user.role}</p>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Change Password */}
-                <Card className="border-[#C9A96E]/20">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Change Password</CardTitle>
-                    <CardDescription>Update your account password</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)} className="space-y-4">
-                      <div className="grid gap-4 sm:grid-cols-3">
-                        <div className="space-y-2">
-                          <Label htmlFor="current-password" className="text-sm">Current Password</Label>
-                          <div className="relative">
-                            <Input
-                              id="current-password"
-                              type={showCurrentPassword ? 'text' : 'password'}
-                              className="h-9 pr-9 border-[#1A1A1A]/20"
-                              {...passwordForm.register('currentPassword')}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]/40 hover:text-[#1A1A1A]/60"
-                            >
-                              {showCurrentPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                            </button>
-                          </div>
-                          {passwordForm.formState.errors.currentPassword && (
-                            <p className="text-xs text-red-500">
-                              {passwordForm.formState.errors.currentPassword.message}
-                            </p>
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-password" className="text-sm">New Password</Label>
-                          <div className="relative">
-                            <Input
-                              id="new-password"
-                              type={showNewPassword ? 'text' : 'password'}
-                              className="h-9 pr-9 border-[#1A1A1A]/20"
-                              {...passwordForm.register('newPassword')}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowNewPassword(!showNewPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1A1A1A]/40 hover:text-[#1A1A1A]/60"
-                            >
-                              {showNewPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                            </button>
-                          </div>
-                          {passwordForm.formState.errors.newPassword && (
-                            <p className="text-xs text-red-500">
-                              {passwordForm.formState.errors.newPassword.message}
-                            </p>
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="confirm-new-password" className="text-sm">Confirm New</Label>
-                          <Input
-                            id="confirm-new-password"
-                            type="password"
-                            className="h-9 border-[#1A1A1A]/20"
-                            {...passwordForm.register('confirmPassword')}
-                          />
-                          {passwordForm.formState.errors.confirmPassword && (
-                            <p className="text-xs text-red-500">
-                              {passwordForm.formState.errors.confirmPassword.message}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <Button
-                        type="submit"
-                        disabled={passwordLoading}
-                        className="bg-[#C9A96E] hover:bg-[#b89558] text-white"
-                      >
-                        {passwordLoading ? (
-                          <><Loader2 className="h-4 w-4 animate-spin" /> Updating...</>
-                        ) : (
-                          'Update Password'
-                        )}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-
-                {/* Logout */}
-                <div className="flex justify-end">
-                  <Button
-                    variant="outline"
-                    className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 gap-2"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logout
-                  </Button>
+                  <ChevronRight className="h-5 w-5 text-[#1A1A1A]/20 flex-shrink-0" />
                 </div>
               </div>
+            )}
+
+            {/* Menu Items */}
+            <div className="mt-4 bg-white rounded-2xl shadow-sm border border-[#1A1A1A]/6 overflow-hidden">
+              <div className="divide-y divide-[#1A1A1A]/5">
+                {menuItems.slice(1).map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSection(item.id)}
+                    className="w-full flex items-center gap-3.5 px-5 py-4 hover:bg-[#FAF8F5]/80 active:bg-[#FAF8F5] transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-[#C9A96E]/8 flex items-center justify-center flex-shrink-0 text-[#C9A96E]">
+                      {item.icon}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="text-sm font-medium text-[#1A1A1A]">{item.label}</p>
+                      <p className="text-xs text-[#1A1A1A]/35 mt-0.5">{item.description}</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-[#1A1A1A]/20 flex-shrink-0" />
+                  </button>
+                ))}
+              </div>
             </div>
-          </TabsContent>
 
-          {/* ==================== ADDRESSES TAB ==================== */}
-          <TabsContent value="addresses">
-            <Card className="border-[#C9A96E]/20">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg">Saved Addresses</CardTitle>
-                  <CardDescription>Manage your delivery addresses</CardDescription>
-                </div>
-                <Button
-                  onClick={() => handleOpenAddressDialog(null)}
-                  className="bg-[#C9A96E] hover:bg-[#b89558] text-white"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add New
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {loadingAddresses ? (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {[1, 2].map((i) => (
-                      <div key={i} className="h-36 rounded-lg bg-gray-100 animate-pulse" />
-                    ))}
-                  </div>
-                ) : addresses.length === 0 ? (
-                  <div className="text-center py-12">
-                    <MapPin className="h-12 w-12 text-[#1A1A1A]/20 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-[#1A1A1A]">No saved addresses</h3>
-                    <p className="text-sm text-[#1A1A1A]/60 mt-1">
-                      Add your first delivery address
-                    </p>
-                    <Button
-                      onClick={() => handleOpenAddressDialog(null)}
-                      className="mt-4 bg-[#C9A96E] hover:bg-[#b89558] text-white"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add Address
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {addresses.map((address) => (
-                      <div
-                        key={address.id}
-                        className="relative rounded-lg border border-[#1A1A1A]/10 p-4 hover:border-[#C9A96E]/40 transition-colors"
-                      >
-                        {address.isDefault && (
-                          <Badge className="absolute top-3 right-3 bg-[#C9A96E]/10 text-[#C9A96E] border-[#C9A96E]/20 text-[10px]">
-                            Default
-                          </Badge>
-                        )}
-                        {address.label && (
-                          <p className="text-sm font-semibold text-[#1A1A1A]">{address.label}</p>
-                        )}
-                        <p className="text-sm text-[#1A1A1A]/80 mt-1">{address.name}</p>
-                        <p className="text-sm text-[#1A1A1A]/60">{address.phone}</p>
-                        <p className="text-sm text-[#1A1A1A]/60 mt-1">
-                          {address.line1}
-                          {address.line2 && `, ${address.line2}`}
-                        </p>
-                        <p className="text-sm text-[#1A1A1A]/60">
-                          {address.city}, {address.state} - {address.pincode}
-                        </p>
-                        <div className="flex gap-2 mt-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-[#C9A96E] hover:text-[#b89558] hover:bg-[#C9A96E]/10 h-8 text-xs"
-                            onClick={() => handleOpenAddressDialog(address)}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                            Edit
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 text-xs"
-                            onClick={() => handleDeleteAddress(address.id)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="w-full mt-4 flex items-center justify-center gap-2.5 py-3.5 bg-white rounded-2xl shadow-sm border border-[#1A1A1A]/6 hover:bg-red-50/50 active:bg-red-50 transition-colors text-red-500"
+            >
+              <LogOut className="h-4.5 w-4.5" />
+              <span className="text-sm font-medium">Logout</span>
+            </button>
 
-            {/* Address Dialog */}
-            <AddressDialog
-              open={addressDialogOpen}
-              onOpenChange={setAddressDialogOpen}
-              address={editingAddress}
-              userId={user.id}
-              onSave={fetchAddresses}
-            />
-          </TabsContent>
+            {/* App Version */}
+            <p className="text-center text-[10px] text-[#1A1A1A]/20 mt-6 pb-2">LuxeChains v1.0.0</p>
+          </>
+        ) : (
+          <div className="py-5">
+            {renderActiveSection()}
+          </div>
+        )}
+      </main>
 
-          {/* ==================== ORDERS TAB ==================== */}
-          <TabsContent value="orders">
-            <Card className="border-[#C9A96E]/20">
-              <CardHeader>
-                <CardTitle className="text-lg">Order History</CardTitle>
-                <CardDescription>View and track your orders</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {loadingOrders ? (
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-24 rounded-lg bg-gray-100 animate-pulse" />
-                    ))}
-                  </div>
-                ) : orders.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Package className="h-12 w-12 text-[#1A1A1A]/20 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-[#1A1A1A]">No orders yet</h3>
-                    <p className="text-sm text-[#1A1A1A]/60 mt-1">
-                      You haven&apos;t placed any orders yet
-                    </p>
-                    <Button
-                      onClick={() => navigate('products')}
-                      className="mt-4 bg-[#C9A96E] hover:bg-[#b89558] text-white"
-                    >
-                      <ShoppingBag className="h-4 w-4" />
-                      Shop Now
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {orders.map((order) => {
-                      const isExpanded = expandedOrder === order.id;
-                      const status = statusConfig[order.status] || statusConfig.pending;
-
-                      return (
-                        <div
-                          key={order.id}
-                          className="rounded-lg border border-[#1A1A1A]/10 overflow-hidden hover:border-[#C9A96E]/40 transition-colors"
-                        >
-                          <div
-                            className="flex items-center justify-between p-4 cursor-pointer"
-                            onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
-                          >
-                            <div className="flex items-center gap-4">
-                              <div>
-                                <p className="text-sm font-semibold text-[#1A1A1A]">
-                                  #{order.orderNumber}
-                                </p>
-                                <p className="text-xs text-[#1A1A1A]/60">
-                                  {formatDate(order.createdAt)}
-                                </p>
-                              </div>
-                            <Badge className={`${status.className} text-xs border`}>
-                              {status.label}
-                            </Badge>
-                            <p className="text-sm font-semibold text-[#1A1A1A]">
-                              ₹{order.total.toLocaleString('en-IN')}
-                            </p>
-                            <p className="text-xs text-[#1A1A1A]/60 hidden sm:block">
-                              {order.items.length} item{order.items.length !== 1 ? 's' : ''}
-                            </p>
-                            </div>
-                            <ChevronRight
-                              className={`h-5 w-5 text-[#1A1A1A]/40 transition-transform ${
-                                isExpanded ? 'rotate-90' : ''
-                              }`}
-                            />
-                          </div>
-
-                          {isExpanded && (
-                            <div className="border-t border-[#1A1A1A]/10 p-4 bg-[#FAF8F5]/50">
-                              <div className="space-y-3">
-                                {order.items.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    className="flex items-center gap-3"
-                                  >
-                                    <div className="h-12 w-12 rounded-md bg-[#1A1A1A]/5 overflow-hidden flex-shrink-0">
-                                      {item.productImage && (
-                                        <img
-                                          src={item.productImage}
-                                          alt={item.productName}
-                                          className="h-full w-full object-cover"
-                                        />
-                                      )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-sm font-medium text-[#1A1A1A] truncate">
-                                        {item.productName}
-                                      </p>
-                                      <p className="text-xs text-[#1A1A1A]/60">
-                                        Qty: {item.quantity} × ₹{item.price.toLocaleString('en-IN')}
-                                      </p>
-                                    </div>
-                                    <p className="text-sm font-medium text-[#1A1A1A]">
-                                      ₹{(item.price * item.quantity).toLocaleString('en-IN')}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                              <Separator className="my-3" />
-                              <div className="flex justify-between text-xs text-[#1A1A1A]/60">
-                                <span>Payment: {order.paymentMethod.toUpperCase()}</span>
-                                <span>
-                                  Shipping: ₹{order.shipping.toLocaleString('en-IN')}
-                                  {order.discount > 0 && (
-                                    <span className="text-green-600 ml-2">
-                                      - ₹{order.discount.toLocaleString('en-IN')} discount
-                                    </span>
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+      {/* Bottom Nav */}
+      <BottomNav active="profile" />
     </div>
   );
 }

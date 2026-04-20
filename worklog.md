@@ -349,3 +349,118 @@ Stage Summary:
   - Seeded database with sample data
 - Test accounts: admin@luxechains.com/admin123 (admin), user@test.com/user123 (user)
 - Coupon codes: WELCOME10 (10% off), ZODIAC20 (20% off), FLAT500 (₹500 off min ₹2000)
+
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix admin dashboard crash - "Cannot read properties of undefined (reading 'toLocaleString')"
+
+Work Log:
+- Read AdminOverview.tsx, AdminDashboard.tsx, AdminLogin.tsx, authStore, login API, stats API, auth-helpers
+- Identified root cause: AdminOverview.tsx fetches /api/admin/stats and /api/admin/orders WITHOUT Authorization headers
+- The requireAdmin middleware returns { error: 'Unauthorized' } which is truthy
+- setStats({ error: 'Unauthorized' }) gets called, then displayStats.totalRevenue is undefined → crash
+- Also found orders response parsing was wrong (API returns { orders: [...] } not a flat array)
+
+Stage Summary:
+- Fixed AdminOverview.tsx:
+  1. Added useAuthStore import to get auth token
+  2. Added Authorization: Bearer <token> header to both fetch calls
+  3. Added type validation before setting stats (typeof totalRevenue === 'number')
+  4. Fixed orders parsing to use ordersRes.value.orders
+  5. Added null coalescing (displayStats.totalRevenue ?? 0) as defense in depth
+  6. Added token to useEffect dependency array
+- Lint passes cleanly
+- Dev server running with hot reload applied
+
+---
+## Task ID: 4
+### Work Task
+Rewrite the ProfilePage component with sidebar layout and all 6 dashboard sections (Profile, Orders, Addresses, Wishlist, Security, Settings).
+
+### Work Summary
+- Read project context: worklog.md, types.ts, store.ts, existing shadcn/ui components, page.tsx, API routes
+- Completely rewrote `/src/components/pages/auth/ProfilePage.tsx` with sidebar-based layout replacing the previous Tabs-based layout
+- Implemented responsive sidebar: 256px fixed sidebar on desktop, Sheet-based hamburger menu on mobile
+- Created SidebarNav component with: user avatar/name at top, 6 nav links with lucide icons and gold active indicator, logout button at bottom
+- Built all 6 dashboard sections:
+  1. **Profile**: Avatar with initials, user info display (name, email, phone, member since), inline edit form with name+phone fields, PUT to /api/auth/profile
+  2. **Orders**: Order list from GET /api/auth/orders, expandable cards with order number/date/status badge/total/item count, expanded view shows items with images, parsed shipping address from JSON, subtotal/discount/shipping/total breakdown, payment method display, color-coded status badges (pending=yellow, confirmed=blue, shipped=purple, delivered=green, cancelled=red)
+  3. **Addresses**: Address card grid from GET /api/auth/addresses, each card with label badge, name, phone, address, default badge, Edit/Delete buttons, Add New Address button opens Dialog with form (label, name, phone, line1, line2, city, state, pincode, set as default checkbox), POST/PUT/DELETE API integration
+  4. **Wishlist**: Product card grid from GET /api/auth/wishlist, each card with product image (hover zoom), name, star rating, price with compare strikethrough, stock badge, "Move to Cart" button (constructs Product object, uses cartStore.addItem), "Remove" button calls DELETE /api/auth/wishlist
+  5. **Security**: Change password form (current, new, confirm) with eye toggle visibility on all 3 fields, zod validation (min 6 chars, passwords match), PUT to /api/auth/password, Logout button
+  6. **Settings**: Danger zone card with red styling, "Delete Account" button with AlertDialog confirmation, DELETE /api/auth/profile then logout+navigate, warning text about permanent deletion
+- All data fetched on mount using useCallback + useEffect with Bearer token auth
+- Loading skeleton states for all sections (profile, orders, addresses, wishlist)
+- Empty states with CTAs (Shop Now for orders, Add Address for addresses, Explore Products for wishlist)
+- Uses shadcn/ui: Card, Button, Input, Label, Dialog, Sheet, Avatar, Badge, Separator, Skeleton, Checkbox, AlertDialog
+- Uses react-hook-form + zod for profile, address, and password forms
+- Uses sonner toast for success/error messages
+- Uses useWishlistStore for syncing wishlist state and useCartStore for adding to cart
+- Color palette consistent: gold (#C9A96E), charcoal (#1A1A1A), cream (#FAF8F5)
+- ESLint passes with zero errors/warnings
+- Dev server compiles successfully
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Rewrite ProfilePage with sidebar layout and all 6 dashboard sections
+
+Work Log:
+- Added Wishlist model to Prisma schema with userId+productId unique constraint
+- Ran db:push to sync schema
+- Created 4 new backend API endpoints:
+  - GET /api/auth/orders - list user orders with items
+  - PUT/DELETE /api/auth/addresses/[id] - per-address operations
+  - GET/POST/DELETE /api/auth/wishlist - wishlist CRUD
+  - DELETE /api/auth/profile - account deletion
+- Added WishlistItem type and ProfileSection type to types.ts
+- Added useWishlistStore to store.ts (items, setItems, addItem, removeItem, hasItem, clearWishlist)
+- Completely rewrote ProfilePage (1621 lines) with:
+  - Sidebar layout (fixed 256px desktop / Sheet mobile)
+  - SidebarNav component with user info, nav items, logout
+  - 6 sections: Profile, Orders, Addresses, Wishlist, Security, Settings
+  - Loading skeletons on all data fetches
+  - Empty states with CTAs
+  - Address dialog with set-as-default checkbox
+  - Wishlist items with star ratings, Move to Cart, Remove
+  - Password change form with eye toggles
+  - Account deletion with AlertDialog confirmation
+  - All data connected to real backend APIs, no mock data
+
+Stage Summary:
+- Profile dashboard is fully functional with sidebar navigation
+- All 6 sections use real API data
+- Lint passes cleanly, dev server compiles without errors
+---
+Task ID: 1
+Agent: Main Agent
+Task: Redesign Profile Page with mobile-first card-based UI
+
+Work Log:
+- Read existing ProfilePage.tsx (1400+ lines with sidebar layout, all backend connections)
+- Read all API routes: /api/auth/profile, /api/auth/orders, /api/auth/addresses, /api/auth/wishlist, /api/auth/password
+- Read types (ProfileSection, Address, Order, WishlistItem, Product) and stores (authStore, cartStore, wishlistStore)
+- Completely rewrote ProfilePage.tsx with mobile-first design:
+  - User info card at top (avatar, name, email, member since) - clickable to edit profile
+  - Vertical menu list (Order History, Manage Addresses, Wishlist, Security, Settings) with icons + descriptions + chevron arrows
+  - Logout button (highlighted red) below menu
+  - Sub-section views with back navigation (ChevronLeft)
+  - Fixed bottom navigation bar (Home, Shop, Orders, Profile) on mobile
+  - All existing business logic preserved (data fetching, CRUD handlers, forms)
+  - Rounded cards (rounded-2xl), soft shadows, clean spacing
+  - Gold (#C9A96E) accent color palette maintained
+  - Responsive: max-w-2xl centered, bottom nav hidden on md+ via md:hidden
+  - Edit Profile: center-aligned avatar, info table, edit button
+  - Orders: expandable cards with items, address, price breakdown
+  - Addresses: card list with label badges, edit/delete actions, default indicator
+  - Wishlist: 2-col product grid with remove/add-to-cart
+  - Security: password change form with show/hide toggles
+  - Settings: logout + delete account + app version
+- Fixed wishlist API 500 error: added safe JSON.parse with fallback, filter deleted products
+
+Stage Summary:
+- ProfilePage.tsx completely rewritten (~1100 lines) with mobile-first card UI
+- /api/auth/wishlist/route.ts fixed: safe image parsing, null product filtering
+- Lint passes cleanly (0 errors, 0 warnings)
+- All sections connected to real backend APIs, no mock data

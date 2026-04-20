@@ -70,7 +70,13 @@ export default function LoginPage() {
 
       setAuth(result.user, result.token);
       toast.success('Welcome back!');
-      navigate('home');
+
+      // Redirect admin users directly to the admin dashboard
+      if (result.user.role === 'admin') {
+        navigate('admin');
+      } else {
+        navigate('home');
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Something went wrong');
     } finally {

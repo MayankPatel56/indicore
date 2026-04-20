@@ -7,6 +7,8 @@ import {
   ShoppingBag,
   User,
   Menu,
+  LayoutDashboard,
+  LogOut,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +20,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useNavigationStore, useCartStore, useAuthStore } from '@/lib/store';
 
 const navLinks = [
@@ -31,6 +40,9 @@ export default function Header() {
   const page = useNavigationStore((s) => s.page);
   const cartCount = useCartStore((s) => s.getItemCount());
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const isAdmin = user?.role === 'admin';
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -145,17 +157,49 @@ export default function Header() {
           </Button>
 
           {/* User */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              isAuthenticated ? navigate('profile') : navigate('login')
-            }
-            aria-label="Account"
-            className="hidden sm:flex text-[#1A1A1A] hover:text-[#C9A96E]"
-          >
-            <User className="h-5 w-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Account"
+                className="hidden sm:flex text-[#1A1A1A] hover:text-[#C9A96E]"
+              >
+                <User className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {isAuthenticated && user ? (
+                <>
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium text-[#1A1A1A] truncate">{user.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('profile')}>
+                    <User className="mr-2 h-4 w-4" />
+                    My Account
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate('admin')} className="text-[#C9A96E] font-medium">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Admin Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => { logout(); navigate('home'); }} className="text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem onClick={() => navigate('login')}>
+                  <User className="mr-2 h-4 w-4" />
+                  Login
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Mobile Hamburger */}
           <div className="md:hidden">
@@ -218,6 +262,31 @@ export default function Header() {
                     <User className="h-4 w-4" />
                     {isAuthenticated ? 'My Account' : 'Login'}
                   </button>
+                  {isAuthenticated && isAdmin && (
+                    <button
+                      onClick={() => {
+                        navigate('admin');
+                        setMobileOpen(false);
+                      }}
+                      className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-[#C9A96E] hover:bg-[#FAF8F5] flex items-center gap-2"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      Admin Dashboard
+                    </button>
+                  )}
+                  {isAuthenticated && (
+                    <button
+                      onClick={() => {
+                        logout();
+                        navigate('home');
+                        setMobileOpen(false);
+                      }}
+                      className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </button>
+                  )}
                 </nav>
               </SheetContent>
             </Sheet>

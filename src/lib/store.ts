@@ -9,6 +9,7 @@ import type {
   Address,
   Order,
   Banner,
+  WishlistItem,
 } from './types';
 
 // ==================== Navigation Store ====================
@@ -166,6 +167,30 @@ export const useCartStore = create<CartState>()(
     }
   )
 );
+
+// ==================== Wishlist Store ====================
+interface WishlistState {
+  items: WishlistItem[];
+  setItems: (items: WishlistItem[]) => void;
+  addItem: (item: WishlistItem) => void;
+  removeItem: (productId: string) => void;
+  hasItem: (productId: string) => boolean;
+  clearWishlist: () => void;
+}
+
+export const useWishlistStore = create<WishlistState>()((set, get) => ({
+  items: [],
+  setItems: (items) => set({ items }),
+  addItem: (item) =>
+    set((state) => {
+      if (state.items.some((i) => i.productId === item.productId)) return state;
+      return { items: [item, ...state.items] };
+    }),
+  removeItem: (productId) =>
+    set((state) => ({ items: state.items.filter((i) => i.productId !== productId) })),
+  hasItem: (productId) => get().items.some((i) => i.productId === productId),
+  clearWishlist: () => set({ items: [] }),
+}));
 
 // ==================== Banner Store ====================
 interface BannerState {

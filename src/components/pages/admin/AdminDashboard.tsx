@@ -193,11 +193,13 @@ function AdminContent() {
 
 export default function AdminDashboard() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isAdmin = useAuthStore((s) => s.isAdmin);
+  const user = useAuthStore((s) => s.user);
   const sidebarOpen = useAdminStore((s) => s.sidebarOpen);
   const setSidebarOpen = useAdminStore((s) => s.setSidebarOpen);
 
-  if (!isAuthenticated || !isAdmin()) {
+  const isAdminUser = user?.role === 'admin';
+
+  if (!isAuthenticated || !isAdminUser) {
     return <AdminLogin />;
   }
 

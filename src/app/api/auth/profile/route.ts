@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-helpers';
+import { db } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
@@ -47,6 +48,21 @@ export async function PUT(request: NextRequest) {
       role: updated.role,
       createdAt: updated.createdAt.toISOString(),
     });
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const auth = await requireAuth(request);
+    if ('error' in auth) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
+    await db.user.delete({ where: { id: auth.user.id } });
+
+    return NextResponse.json({ message: 'Account deleted successfully' });
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

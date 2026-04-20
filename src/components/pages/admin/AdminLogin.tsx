@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuthStore } from '@/lib/store';
-import { Loader2, Diamond } from 'lucide-react';
+import { Loader2, Diamond, ShieldCheck } from 'lucide-react';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -14,6 +14,8 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const setAuth = useAuthStore((s) => s.setAuth);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +37,7 @@ export default function AdminLogin() {
       }
 
       if (data.user?.role !== 'admin') {
-        setError('Access denied');
+        setError('Access denied. You are not an administrator.');
         return;
       }
 
@@ -46,6 +48,11 @@ export default function AdminLogin() {
       setLoading(false);
     }
   };
+
+  // Already authenticated as admin — parent AdminDashboard will handle rendering
+  if (isAuthenticated && user?.role === 'admin') {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream px-4">

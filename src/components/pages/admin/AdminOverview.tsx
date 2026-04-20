@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useAuthStore } from '@/lib/store';
 import type { Order } from '@/lib/types';
 
 interface Stats {
@@ -126,20 +127,24 @@ export default function AdminOverview() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [orders, setOrders] = useState<(Order & { customerName?: string })[]>([]);
   const [loading, setLoading] = useState(true);
+  const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        const headers: Record<string, string> = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
         const [statsRes, ordersRes] = await Promise.allSettled([
-          fetch('/api/admin/stats').then((r) => r.json()),
-          fetch('/api/admin/orders').then((r) => r.json()),
+          fetch('/api/admin/stats', { headers }).then((r) => r.json()),
+          fetch('/api/admin/orders', { headers }).then((r) => r.json()),
         ]);
 
-        if (statsRes.status === 'fulfilled' && statsRes.value) {
+        if (statsRes.status === 'fulfilled' && statsRes.value && typeof statsRes.value.totalRevenue === 'number') {
           setStats(statsRes.value);
         }
-        if (ordersRes.status === 'fulfilled' && Array.isArray(ordersRes.value)) {
-          setOrders(ordersRes.value.slice(0, 5));
+        if (ordersRes.status === 'fulfilled' && ordersRes.value && Array.isArray(ordersRes.value.orders)) {
+          setOrders(ordersRes.value.orders.slice(0, 5));
         }
       } catch {
         // use fallback data
@@ -148,7 +153,7 @@ export default function AdminOverview() {
       }
     }
     fetchData();
-  }, []);
+  }, [token]);
 
   const displayStats = stats || fallbackStats;
   const displayOrders = orders.length > 0 ? orders : fallbackOrders;
@@ -170,7 +175,7 @@ export default function AdminOverview() {
     },
     {
       label: 'Total Revenue',
-      value: `₹${displayStats.totalRevenue.toLocaleString()}`,
+      value: `₹${(displayStats.totalRevenue ?? 0).toLocaleString()}`,
       icon: <DollarSign className="h-5 w-5" />,
       color: 'text-green-600',
       bg: 'bg-green-50',

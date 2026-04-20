@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import {
-  Diamond,
+  Hexagon,
   Search,
   ShoppingBag,
   User,
@@ -48,7 +48,6 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef<HTMLDivElement>(null);
 
-  // Close search dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -73,16 +72,17 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white shadow-sm">
+    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#1A1A1A]/6">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left: Logo */}
         <button
           onClick={() => navigate('home')}
           className="flex items-center gap-2 transition-opacity hover:opacity-80"
         >
-          <Diamond className="h-6 w-6 text-[#C9A96E]" />
+          <Hexagon className="h-6 w-6 text-[#B87333]" />
           <span className="text-xl font-bold tracking-tight text-[#1A1A1A]">
-            Luxe<span className="text-[#C9A96E]">Chains</span>
+            Indi<span className="text-[#B87333]">Core</span>
+            <span className="text-[#1A1A1A]/60 font-normal text-sm ml-1 hidden sm:inline">Originals</span>
           </span>
         </button>
 
@@ -92,10 +92,10 @@ export default function Header() {
             <button
               key={link.page}
               onClick={() => handleNavClick(link.page)}
-              className={`text-sm font-medium transition-colors hover:text-[#C9A96E] ${
+              className={`text-sm font-medium transition-colors hover:text-[#B87333] ${
                 page === link.page
-                  ? 'text-[#C9A96E] border-b-2 border-[#C9A96E] pb-0.5'
-                  : 'text-[#1A1A1A]'
+                  ? 'text-[#B87333] border-b-2 border-[#B87333] pb-0.5'
+                  : 'text-[#1A1A1A]/70'
               }`}
             >
               {link.label}
@@ -112,26 +112,26 @@ export default function Header() {
               size="icon"
               onClick={() => setSearchOpen(!searchOpen)}
               aria-label="Search"
-              className="text-[#1A1A1A] hover:text-[#C9A96E]"
+              className="text-[#1A1A1A]/70 hover:text-[#B87333]"
             >
               <Search className="h-5 w-5" />
             </Button>
 
             {searchOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-lg border shadow-lg p-3 animate-in fade-in-0 slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl border border-[#1A1A1A]/8 shadow-lg p-3 animate-in fade-in-0 slide-in-from-top-2 duration-200">
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Search necklaces, chains..."
+                    placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="flex-1 text-sm"
+                    className="flex-1 text-sm border-[#1A1A1A]/10 rounded-lg"
                     autoFocus
                   />
                   <Button
                     size="sm"
                     onClick={handleSearch}
-                    className="bg-[#C9A96E] hover:bg-[#b89558] text-white text-xs"
+                    className="bg-[#B87333] hover:bg-[#9E6329] text-white text-xs rounded-lg"
                   >
                     Go
                   </Button>
@@ -146,11 +146,11 @@ export default function Header() {
             size="icon"
             onClick={() => navigate('cart')}
             aria-label="Shopping cart"
-            className="relative text-[#1A1A1A] hover:text-[#C9A96E]"
+            className="relative text-[#1A1A1A]/70 hover:text-[#B87333]"
           >
             <ShoppingBag className="h-5 w-5" />
             {cartCount > 0 && (
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center bg-[#C9A96E] text-white text-[10px] rounded-full p-0 border-0">
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center bg-[#B87333] text-white text-[10px] rounded-full p-0 border-0">
                 {cartCount > 9 ? '9+' : cartCount}
               </Badge>
             )}
@@ -163,7 +163,7 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 aria-label="Account"
-                className="hidden sm:flex text-[#1A1A1A] hover:text-[#C9A96E]"
+                className="hidden sm:flex text-[#1A1A1A]/70 hover:text-[#B87333]"
               >
                 <User className="h-5 w-5" />
               </Button>
@@ -181,7 +181,7 @@ export default function Header() {
                     My Account
                   </DropdownMenuItem>
                   {isAdmin && (
-                    <DropdownMenuItem onClick={() => navigate('admin')} className="text-[#C9A96E] font-medium">
+                    <DropdownMenuItem onClick={() => navigate('admin')} className="text-[#B87333] font-medium">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       Admin Dashboard
                     </DropdownMenuItem>
@@ -209,7 +209,7 @@ export default function Header() {
                   variant="ghost"
                   size="icon"
                   aria-label="Open menu"
-                  className="text-[#1A1A1A] hover:text-[#C9A96E]"
+                  className="text-[#1A1A1A]/70 hover:text-[#B87333]"
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
@@ -217,9 +217,9 @@ export default function Header() {
               <SheetContent side="right" className="w-72">
                 <SheetHeader>
                   <SheetTitle className="flex items-center gap-2">
-                    <Diamond className="h-5 w-5 text-[#C9A96E]" />
+                    <Hexagon className="h-5 w-5 text-[#B87333]" />
                     <span>
-                      Luxe<span className="text-[#C9A96E]">Chains</span>
+                      Indi<span className="text-[#B87333]">Core</span>
                     </span>
                   </SheetTitle>
                 </SheetHeader>
@@ -228,10 +228,10 @@ export default function Header() {
                     <button
                       key={link.page}
                       onClick={() => handleNavClick(link.page)}
-                      className={`rounded-md px-3 py-2.5 text-left text-sm font-medium transition-colors hover:bg-[#FAF8F5] ${
+                      className={`rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors hover:bg-[#FAF8F5] ${
                         page === link.page
-                          ? 'bg-[#FAF8F5] text-[#C9A96E]'
-                          : 'text-[#1A1A1A]'
+                          ? 'bg-[#FAF8F5] text-[#B87333]'
+                          : 'text-[#1A1A1A]/70'
                       }`}
                     >
                       {link.label}
@@ -243,7 +243,7 @@ export default function Header() {
                       navigate('cart');
                       setMobileOpen(false);
                     }}
-                    className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-[#1A1A1A] hover:bg-[#FAF8F5] flex items-center gap-2"
+                    className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[#1A1A1A]/70 hover:bg-[#FAF8F5] flex items-center gap-2"
                   >
                     <ShoppingBag className="h-4 w-4" />
                     Cart {cartCount > 0 && `(${cartCount})`}
@@ -257,7 +257,7 @@ export default function Header() {
                       }
                       setMobileOpen(false);
                     }}
-                    className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-[#1A1A1A] hover:bg-[#FAF8F5] flex items-center gap-2"
+                    className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[#1A1A1A]/70 hover:bg-[#FAF8F5] flex items-center gap-2"
                   >
                     <User className="h-4 w-4" />
                     {isAuthenticated ? 'My Account' : 'Login'}
@@ -268,7 +268,7 @@ export default function Header() {
                         navigate('admin');
                         setMobileOpen(false);
                       }}
-                      className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-[#C9A96E] hover:bg-[#FAF8F5] flex items-center gap-2"
+                      className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-[#B87333] hover:bg-[#FAF8F5] flex items-center gap-2"
                     >
                       <LayoutDashboard className="h-4 w-4" />
                       Admin Dashboard
@@ -281,7 +281,7 @@ export default function Header() {
                         navigate('home');
                         setMobileOpen(false);
                       }}
-                      className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
                     >
                       <LogOut className="h-4 w-4" />
                       Logout

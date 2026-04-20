@@ -199,7 +199,7 @@ interface BannerState {
 }
 
 export const useBannerStore = create<BannerState>((set) => ({
-  banner: { id: '1', text: '✨ Flat 20% OFF on All Zodiac Chains! Use Code: ZODIAC20', active: true },
+  banner: { id: '1', text: '✦ Free Shipping on All Orders Across India — IndiCore Originals', active: true },
   setBanner: (banner) => set({ banner }),
 }));
 

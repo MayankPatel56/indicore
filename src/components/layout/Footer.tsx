@@ -1,6 +1,6 @@
 'use client';
 
-import { Diamond } from 'lucide-react';
+import { Hexagon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useNavigationStore } from '@/lib/store';
 
@@ -12,9 +12,9 @@ const shopLinks = [
 ];
 
 const categoryLinks = [
-  { label: 'Zodiac Chains', page: 'products' as const, params: { category: 'zodiac' } },
-  { label: 'Custom Chains', page: 'products' as const, params: { category: 'custom' } },
-  { label: 'Stylish Chains', page: 'products' as const, params: { category: 'stylish' } },
+  { label: 'Heritage Collection', page: 'products' as const, params: { category: 'heritage' } },
+  { label: 'Tech Series', page: 'products' as const, params: { category: 'tech' } },
+  { label: 'Limited Edition', page: 'products' as const, params: { category: 'limited' } },
 ];
 
 const serviceLinks = [
@@ -66,9 +66,34 @@ export default function Footer() {
     <footer className="bg-[#1A1A1A] text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+          {/* Brand Column */}
+          <div className="col-span-2 md:col-span-1">
+            <div className="flex items-center gap-2 mb-4">
+              <Hexagon className="h-6 w-6 text-[#B87333]" />
+              <span className="text-lg font-bold tracking-tight">
+                Indi<span className="text-[#B87333]">Core</span>
+              </span>
+            </div>
+            <p className="text-sm text-gray-400 leading-relaxed mb-4">
+              Rooted in Indian heritage. Engineered with modern precision. Premium products for the discerning individual.
+            </p>
+            <div className="flex gap-4">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  aria-label={social.label}
+                  className="text-gray-500 transition-colors hover:text-[#B87333]"
+                >
+                  {social.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+
           {/* Shop Links */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#C9A96E]">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#B87333]">
               Shop
             </h3>
             <ul className="space-y-3">
@@ -76,7 +101,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <button
                     onClick={() => handleLinkClick(link.page, link.params)}
-                    className="text-sm text-gray-400 transition-colors hover:text-[#C9A96E]"
+                    className="text-sm text-gray-400 transition-colors hover:text-[#B87333]"
                   >
                     {link.label}
                   </button>
@@ -85,17 +110,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Categories */}
+          {/* Collections */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#C9A96E]">
-              Categories
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#B87333]">
+              Collections
             </h3>
             <ul className="space-y-3">
               {categoryLinks.map((link) => (
                 <li key={link.label}>
                   <button
                     onClick={() => handleLinkClick(link.page, link.params)}
-                    className="text-sm text-gray-400 transition-colors hover:text-[#C9A96E]"
+                    className="text-sm text-gray-400 transition-colors hover:text-[#B87333]"
                   >
                     {link.label}
                   </button>
@@ -104,74 +129,55 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Customer Service */}
+          {/* Support */}
           <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#C9A96E]">
-              Customer Service
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#B87333]">
+              Support
             </h3>
             <ul className="space-y-3">
               {serviceLinks.map((link) => (
                 <li key={link.label}>
                   <button
                     onClick={() => handleLinkClick(link.page)}
-                    className="text-sm text-gray-400 transition-colors hover:text-[#C9A96E]"
+                    className="text-sm text-gray-400 transition-colors hover:text-[#B87333]"
                   >
                     {link.label}
                   </button>
                 </li>
               ))}
             </ul>
-          </div>
-
-          {/* Connect */}
-          <div>
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#C9A96E]">
-              Connect
-            </h3>
-            <div className="flex gap-4">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  aria-label={social.label}
-                  className="text-gray-400 transition-colors hover:text-[#C9A96E]"
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
             <div className="mt-6">
               <p className="text-sm text-gray-400">
-                Have questions? Reach out anytime.
+                Questions? We&apos;re here.
               </p>
-              <p className="mt-1 text-sm text-[#C9A96E]">
-                support@luxechains.com
+              <p className="mt-1 text-sm text-[#B87333]">
+                hello@indicore.in
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <Separator className="bg-gray-700" />
+      <Separator className="bg-gray-800" />
 
       {/* Bottom Bar */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Diamond className="h-5 w-5 text-[#C9A96E]" />
-            <span className="text-sm text-gray-400">
-              &copy; 2024 LuxeChains. Free Shipping on All Orders.
+            <Hexagon className="h-4 w-4 text-[#B87333]/60" />
+            <span className="text-xs text-gray-500">
+              &copy; 2024 IndiCore Originals. All rights reserved.
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span>We Accept:</span>
-            <span className="rounded border border-gray-600 px-2 py-0.5 font-medium text-gray-400">
+            <span className="rounded border border-gray-700 px-2 py-0.5 font-medium text-gray-400">
               UPI
             </span>
-            <span className="rounded border border-gray-600 px-2 py-0.5 font-medium text-gray-400">
+            <span className="rounded border border-gray-700 px-2 py-0.5 font-medium text-gray-400">
               COD
             </span>
-            <span className="rounded border border-gray-600 px-2 py-0.5 font-medium text-gray-400">
+            <span className="rounded border border-gray-700 px-2 py-0.5 font-medium text-gray-400">
               Cards
             </span>
           </div>

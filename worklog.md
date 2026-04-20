@@ -464,3 +464,38 @@ Stage Summary:
 - /api/auth/wishlist/route.ts fixed: safe image parsing, null product filtering
 - Lint passes cleanly (0 errors, 0 warnings)
 - All sections connected to real backend APIs, no mock data
+---
+Task ID: 1
+Agent: Main Agent
+Task: Rebrand LuxeChains → IndiCore Originals with complete UI transformation
+
+Work Log:
+- Analyzed existing codebase: HomePage, Header, Footer, AnnouncementBanner, globals.css, store
+- Updated CSS theme variables: replaced gold (#C9A96E) with copper (#B87333, #9E6329, #D4956A)
+- Rewrote Header.tsx: LuxeChains → IndiCore Originals, Diamond icon → Hexagon, copper color scheme, backdrop blur header
+- Rewrote Footer.tsx: New brand column with tagline, updated collections (Heritage/Tech/Limited), copper accents, new email
+- Updated AnnouncementBanner.tsx: Copper color palette
+- Updated store default banner text: IndiCore Originals branding
+- Generated 2 AI images: hero-flagship.png (flagship product on dark charcoal) and heritage-section.png (craftsmanship workshop)
+- Completely rewrote HomePage.tsx (~580 lines) with 9 storytelling sections:
+  1. HERO: Full-viewport flagship product showcase with staggered Framer Motion fadeUp animations, ambient glow shapes, product image with glass overlay, stats row, scroll indicator
+  2. TRUST BADGES: Free Shipping / Secure Payment / Easy Returns with scroll-triggered animations
+  3. HERITAGE STORY: "Born from India's Timeless Craftsmanship" — split layout with image + floating badge, story text, material/artisan icons
+  4. MODERN TECH: 6-card feature grid (Precision Engineered, Built to Last, Rapid Prototyping, Sustainable, Premium Materials, Award-Winning) with hover effects
+  5. FEATURED PRODUCTS: Product grid from API with updated copper styling
+  6. CATEGORIES: Heritage Collection / Tech Series / Limited Edition with overlay cards
+  7. TRENDING: Product grid from API
+  8. TESTIMONIALS: 3 review cards with copper star ratings
+  9. CTA/NEWSLETTER: Community join with ambient background, email signup, Shop Now + Contact CTAs
+
+- Animation system: fadeUp, fadeIn, scaleIn, slideLeft, slideRight variants with custom delay props
+- AnimatedSection wrapper: uses useInView for scroll-triggered animations
+- Micro-interactions: hover scale on feature icons, color transitions, shadow effects, arrow translation on hover
+
+Stage Summary:
+- Complete brand transformation from LuxeChains (jewelry) to IndiCore Originals (premium product brand)
+- New color palette: Deep Charcoal (#1A1A1A) + Copper (#B87333) + Off-White (#FAF8F5/#F7F5F2)
+- All 6 files updated: globals.css, Header.tsx, Footer.tsx, AnnouncementBanner.tsx, store.ts, HomePage.tsx
+- 2 AI-generated images for hero and heritage sections
+- ESLint passes cleanly (0 errors)
+- App compiles and serves successfully

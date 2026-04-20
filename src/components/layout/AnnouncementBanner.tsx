@@ -11,11 +11,11 @@ export default function AnnouncementBanner() {
   if (!banner?.active || !banner.text || dismissed) return null;
 
   return (
-    <div className="relative bg-[#1A1A1A] text-[#C9A96E] text-center text-xs sm:text-sm py-2 px-10">
+    <div className="relative bg-[#1A1A1A] text-[#B87333] text-center text-xs sm:text-sm py-2 px-10">
       <p className="font-medium tracking-wide">{banner.text}</p>
       <button
         onClick={() => setDismissed(true)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C9A96E]/70 hover:text-[#C9A96E] transition-colors"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#B87333]/70 hover:text-[#B87333] transition-colors"
         aria-label="Dismiss banner"
       >
         <X className="h-4 w-4" />

@@ -11,11 +11,11 @@ export async function GET() {
 
     // Create admin user
     const admin = await db.user.upsert({
-      where: { email: 'admin@indicore.com' },
+      where: { email: 'admin@luxechains.com' },
       update: {},
       create: {
-        email: 'admin@indicore.com',
-        password: 'admin123',
+        email: 'admin@luxechains.com',
+        password: 'Mkbot@56',
         name: 'Admin',
         role: 'admin',
       },

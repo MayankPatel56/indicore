@@ -86,7 +86,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-12 bg-[#FAF8F5]">
-      {/* Subtle jewelry-themed background decoration */}
+      {/* Subtle branded background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-32 h-32 rounded-full bg-[#C9A96E]/5 blur-3xl" />
         <div className="absolute bottom-20 right-10 w-48 h-48 rounded-full bg-[#C9A96E]/5 blur-3xl" />
@@ -122,7 +122,7 @@ export default function LoginPage() {
             Welcome Back
           </CardTitle>
           <CardDescription className="text-[#1A1A1A]/60">
-            Sign in to your LuxeChains account
+            Sign in to your IndiCore Originals account
           </CardDescription>
         </CardHeader>
 

@@ -96,7 +96,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-12 bg-[#FAF8F5]">
-      {/* Subtle jewelry-themed background decoration */}
+      {/* Subtle branded background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 w-40 h-40 rounded-full bg-[#C9A96E]/5 blur-3xl" />
         <div className="absolute bottom-20 left-10 w-48 h-48 rounded-full bg-[#C9A96E]/5 blur-3xl" />
@@ -132,7 +132,7 @@ export default function SignupPage() {
             Create Account
           </CardTitle>
           <CardDescription className="text-[#1A1A1A]/60">
-            Join LuxeChains and discover exquisite jewelry
+            Join IndiCore Originals and discover premium products
           </CardDescription>
         </CardHeader>
 

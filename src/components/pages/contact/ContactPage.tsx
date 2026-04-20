@@ -39,7 +39,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: 'Email Us',
-    detail: 'support@luxechains.com',
+    detail: 'support@indicoreoriginals.com',
     description: 'We respond within 24 hours',
   },
   {
@@ -51,7 +51,7 @@ const contactInfo = [
   {
     icon: MapPin,
     title: 'Visit Us',
-    detail: '123 Jewelry Lane, Mumbai, India',
+    detail: 'IndiCore HQ, Mumbai, India',
     description: 'By appointment only',
   },
 ];
@@ -134,7 +134,7 @@ export default function ContactPage() {
           </div>
           <h1 className="text-3xl font-bold text-[#1A1A1A] sm:text-4xl">Get in Touch</h1>
           <p className="mt-2 text-[#1A1A1A]/60 max-w-md mx-auto">
-            Have a question about our jewelry or need help with an order? We&apos;d love to hear from you.
+            Have a question about our products or need help with an order? We&apos;d love to hear from you.
           </p>
         </div>
 

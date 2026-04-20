@@ -1396,8 +1396,8 @@ export default function ProfilePage() {
           <div className="w-12 h-12 rounded-xl bg-[#C9A96E]/10 flex items-center justify-center mx-auto mb-3">
             <Diamond className="h-6 w-6 text-[#C9A96E]" />
           </div>
-          <p className="text-sm font-semibold text-[#1A1A1A]">LuxeChains</p>
-          <p className="text-xs text-[#1A1A1A]/40 mt-0.5">Premium Necklace Store</p>
+          <p className="text-sm font-semibold text-[#1A1A1A]">IndiCore Originals</p>
+          <p className="text-xs text-[#1A1A1A]/40 mt-0.5">Premium Products</p>
           <p className="text-[10px] text-[#1A1A1A]/30 mt-2">Version 1.0.0</p>
         </CardContent>
       </Card>
@@ -1517,7 +1517,7 @@ export default function ProfilePage() {
             </button>
 
             {/* App Version */}
-            <p className="text-center text-[10px] text-[#1A1A1A]/20 mt-6 pb-2">LuxeChains v1.0.0</p>
+            <p className="text-center text-[10px] text-[#1A1A1A]/20 mt-6 pb-2">IndiCore Originals v1.0.0</p>
           </>
         ) : (
           <div className="py-5">

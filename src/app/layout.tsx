@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LuxeChains — Premium Necklaces & Chains | Free Shipping",
-  description: "Discover exquisite necklaces and chains at LuxeChains. Zodiac sign chains, custom pieces, and stylish designs. Free shipping on all orders.",
-  keywords: ["necklaces", "chains", "jewelry", "zodiac chains", "custom chains", "gold chains", "silver chains"],
+  title: "IndiCore Originals — Premium Products | Free Shipping",
+  description: "Discover premium products at IndiCore Originals. Portable fans, fitness gear, home essentials and more. Free shipping on all orders.",
+  keywords: ["premium products", "portable fans", "fitness", "home essentials", "IndiCore", "Indian products", "gadgets"],
   icons: {
     icon: "/logo.svg",
   },

@@ -55,7 +55,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/20">
           <Diamond className="h-5 w-5 text-gold" />
         </div>
-        <span className="text-lg font-bold text-white">LuxeChains</span>
+        <span className="text-lg font-bold text-white">IndiCore Originals</span>
       </div>
 
       <Separator className="bg-white/10" />

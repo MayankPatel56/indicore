@@ -27,7 +27,7 @@ const fallbackUsers: UserWithOrderCount[] = [
   { id: 'u4', email: 'sneha@example.com', name: 'Sneha Reddy', phone: '+91 65432 10987', role: 'customer', createdAt: '2025-01-08T00:00:00Z', ordersCount: 1 },
   { id: 'u5', email: 'vikram@example.com', name: 'Vikram Singh', phone: '+91 54321 09876', role: 'customer', createdAt: '2025-01-10T00:00:00Z', ordersCount: 4 },
   { id: 'u6', email: 'meera@example.com', name: 'Meera Joshi', phone: '+91 43210 98765', role: 'customer', createdAt: '2025-01-15T00:00:00Z', ordersCount: 2 },
-  { id: 'admin', email: 'admin@luxechains.com', name: 'Admin', phone: null, role: 'admin', createdAt: '2024-12-01T00:00:00Z', ordersCount: 0 },
+  { id: 'admin', email: 'admin@indicoreoriginals.com', name: 'Admin', phone: null, role: 'admin', createdAt: '2024-12-01T00:00:00Z', ordersCount: 0 },
 ];
 
 export default function AdminUsers() {

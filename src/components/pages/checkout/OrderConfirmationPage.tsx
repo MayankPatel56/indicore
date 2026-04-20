@@ -29,7 +29,7 @@ export default function OrderConfirmationPage() {
         </h1>
 
         <p className="text-muted-foreground mb-2 text-lg">
-          Thank you for shopping with LuxeChains!
+          Thank you for shopping with IndiCore Originals!
         </p>
 
         {orderId && (

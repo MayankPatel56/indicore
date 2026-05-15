@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Plus, Search, Pencil, Trash2, Star, TrendingUp, ImagePlus, X, GripVertical } from 'lucide-react';
+import { getImagePath } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -78,13 +79,13 @@ const fallbackProducts: Product[] = [
 
 // Category value mapping (display name → slug)
 const categoryToSlug: Record<string, string> = {
-  'Portable Fans': 'portable-fans',
+  'Electronic accessories': 'electronic-accessories',
   'Fitness & Wellness': 'fitness',
   'Home Essentials': 'home-essentials',
 };
 
 const slugToCategory: Record<string, string> = {
-  'portable-fans': 'Portable Fans',
+  'electronic-accessories': 'Electronic accessories',
   'fitness': 'Fitness & Wellness',
   'home-essentials': 'Home Essentials',
 };
@@ -421,7 +422,7 @@ export default function AdminProducts() {
                       <div className="h-10 w-10 rounded-md bg-muted overflow-hidden">
                         {product.images[0] && (
                           <img
-                            src={product.images[0]}
+                            src={getImagePath(product.images[0])}
                             alt={product.name}
                             className="h-full w-full object-cover"
                           />

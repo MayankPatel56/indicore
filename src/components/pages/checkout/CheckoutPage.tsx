@@ -39,6 +39,7 @@ import {
   useCartStore,
   useAuthStore,
 } from '@/lib/store';
+import { getImagePath } from '@/lib/utils';
 import type { Address, PaymentMethod } from '@/lib/types';
 
 // ─── Validation Schema ────────────────────────────────────────────
@@ -639,7 +640,7 @@ function OrderSummaryStep({
               <div key={item.product.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                 <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-[#FAF8F5]">
                   <img
-                    src={`/products/${item.product.images?.[0] || item.product.slug}.png`}
+                    src={getImagePath(item.product.images?.[0])}
                     alt={item.product.name}
                     className="h-full w-full object-cover"
                   />
@@ -945,7 +946,7 @@ export default function CheckoutPage() {
                   <div key={item.product.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                     <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-md bg-[#FAF8F5]">
                       <img
-                        src={`/products/${item.product.images?.[0] || item.product.slug}.png`}
+                        src={getImagePath(item.product.images?.[0])}
                         alt={item.product.name}
                         className="h-full w-full object-cover"
                       />

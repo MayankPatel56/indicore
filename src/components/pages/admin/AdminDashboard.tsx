@@ -25,13 +25,14 @@ import AdminProducts from './AdminProducts';
 import AdminOrders from './AdminOrders';
 import AdminUsers from './AdminUsers';
 import AdminBanner from './AdminBanner';
-import AdminSettings from './AdminSettings';
+import AdminReviews from './AdminReviews';
 
 const navItems: { page: AdminPage; label: string; icon: React.ReactNode }[] = [
   { page: 'overview', label: 'Dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
   { page: 'products', label: 'Products', icon: <Package className="h-5 w-5" /> },
   { page: 'orders', label: 'Orders', icon: <ShoppingCart className="h-5 w-5" /> },
   { page: 'users', label: 'Users', icon: <Users className="h-5 w-5" /> },
+  { page: 'reviews', label: 'Reviews', icon: <Diamond className="h-5 w-5" /> },
   { page: 'banner', label: 'Banner', icon: <Megaphone className="h-5 w-5" /> },
   { page: 'settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
 ];
@@ -133,6 +134,7 @@ function TopBar() {
     products: 'Products',
     orders: 'Orders',
     users: 'Users',
+    reviews: 'Reviews',
     banner: 'Banner Management',
     settings: 'Settings',
   };
@@ -186,6 +188,8 @@ function AdminContent() {
       return <AdminOrders />;
     case 'users':
       return <AdminUsers />;
+    case 'reviews':
+      return <AdminReviews />;
     case 'banner':
       return <AdminBanner />;
     case 'settings':

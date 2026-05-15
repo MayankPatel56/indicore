@@ -24,6 +24,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigationStore, useCartStore } from '@/lib/store';
+import { getImagePath } from '@/lib/utils';
 import type { Product } from '@/lib/types';
 
 // ─── Animation Variants ────────────────────────────────────────────────
@@ -123,7 +124,7 @@ function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-square overflow-hidden bg-[#F7F5F2]">
         <img
-          src={`/products/${product.images?.[0] || product.slug}.png`}
+          src={getImagePath(product.images?.[0])}
           alt={product.name}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           loading="lazy"
@@ -634,7 +635,7 @@ export default function HomePage() {
                 title: 'Portable Fans',
                 desc: 'Stay cool anywhere with our range of rechargeable desk fans, neck fans, and portable cooling solutions.',
                 icon: Cpu,
-                category: 'portable-fans',
+                category: 'electronic-accessories',
                 image: '/products/neck-fan.png',
               },
               {

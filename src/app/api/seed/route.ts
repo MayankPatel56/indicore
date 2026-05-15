@@ -39,7 +39,7 @@ export async function GET() {
       {
         name: "Mini Portable Rechargeable Handheld Desk Fan",
         slug: "portable-desk-fan",
-        category: "portable-fans",
+        category: "electronic-accessories",
         price: 599,
         comparePrice: 1299,
         featured: true,
@@ -75,7 +75,7 @@ export async function GET() {
       {
         name: "EVERAIRY Rechargeable Bladeless Neck Fan",
         slug: "neck-fan-bladeless",
-        category: "portable-fans",
+        category: "electronic-accessories",
         price: 899,
         comparePrice: 1599,
         featured: true,

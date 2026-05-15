@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { getImagePath } from '@/lib/utils';
 import {
   User,
   MapPin,
@@ -957,7 +958,7 @@ export default function ProfilePage() {
                           <div className="h-12 w-12 rounded-lg bg-[#FAF8F5] overflow-hidden flex-shrink-0">
                             {item.productImage && (
                               <img
-                                src={item.productImage}
+                                src={getImagePath(item.productImage)}
                                 alt={item.productName}
                                 className="h-full w-full object-cover"
                               />
@@ -1187,7 +1188,7 @@ export default function ProfilePage() {
                 <div className="relative aspect-square bg-[#FAF8F5]">
                   {images.length > 0 && (
                     <img
-                      src={images[0]}
+                      src={getImagePath(images[0])}
                       alt={item.product.name}
                       className="h-full w-full object-cover"
                     />

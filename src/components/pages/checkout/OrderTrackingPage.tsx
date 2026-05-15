@@ -1,6 +1,7 @@
 'use client';
 
 import { useNavigationStore, useAuthStore } from '@/lib/store';
+import { getImagePath } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -154,7 +155,7 @@ export default function OrderTrackingPage() {
               {(order.items || []).map((item: any) => (
                 <div key={item.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
                   <img
-                    src={item.productImage || '/products/hero-banner.png'}
+                    src={getImagePath(item.productImage)}
                     alt={item.productName}
                     className="w-16 h-16 object-cover rounded-md"
                   />

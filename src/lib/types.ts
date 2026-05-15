@@ -12,7 +12,7 @@ export type PageName =
   | 'order-confirmation'
   | 'admin';
 
-export type AdminPage = 'overview' | 'products' | 'orders' | 'users' | 'banner' | 'settings';
+export type AdminPage = 'overview' | 'products' | 'orders' | 'users' | 'banner' | 'settings' | 'reviews';
 
 export interface Product {
   id: string;

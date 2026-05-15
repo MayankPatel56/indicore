@@ -33,6 +33,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useNavigationStore, useCartStore, useAuthStore } from '@/lib/store';
+import { getImagePath } from '@/lib/utils';
 import type { Product, Review } from '@/lib/types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────
@@ -56,7 +57,7 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md
 
 function getCategoryLabel(category: string) {
   const map: Record<string, string> = {
-    'portable-fans': 'Portable Fans',
+    'electronic-accessories': 'Electronic accessories',
     fitness: 'Fitness & Wellness',
     'home-essentials': 'Home Essentials',
   };
@@ -249,7 +250,7 @@ function RelatedProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-square overflow-hidden bg-[#FAF8F5]">
         <img
-          src={`/products/${product.images?.[0] || product.slug}.png`}
+          src={getImagePath(product.images?.[0])}
           alt={product.name}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
@@ -530,7 +531,7 @@ export default function ProductDetailPage() {
               onMouseMove={handleMouseMove}
             >
               <img
-                src={`/products/${images[selectedImageIndex]}`}
+                src={getImagePath(images[selectedImageIndex])}
                 alt={product.name}
                 className={`h-full w-full object-cover transition-transform duration-300 ${
                   isZoomed ? 'scale-150' : 'scale-100'
@@ -562,7 +563,7 @@ export default function ProductDetailPage() {
                   }`}
                 >
                   <img
-                    src={`/products/${img}`}
+                    src={getImagePath(img)}
                     alt={`${product.name} view ${idx + 1}`}
                     className="h-full w-full object-cover"
                     loading="lazy"

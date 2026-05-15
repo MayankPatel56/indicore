@@ -32,6 +32,7 @@ import {
   useCartStore,
   useAuthStore,
 } from '@/lib/store';
+import { getImagePath } from '@/lib/utils';
 
 // ─── Quantity Selector ────────────────────────────────────────────
 function QuantitySelector({
@@ -101,7 +102,7 @@ function CartItemRow({ item }: { item: { product: import('@/lib/types').Product;
         onClick={() => navigate('product-detail', { slug: item.product.slug })}
       >
         <img
-          src={`/products/${item.product.images?.[0] || item.product.slug}.png`}
+          src={getImagePath(item.product.images?.[0])}
           alt={item.product.name}
           className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
         />

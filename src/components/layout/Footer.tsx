@@ -152,7 +152,7 @@ export default function Footer() {
                 Questions? We&apos;re here.
               </p>
               <p className="mt-1 text-sm text-[#B87333]">
-                hello@indicore.in
+                originalsindicore@gmail.com
               </p>
             </div>
           </div>

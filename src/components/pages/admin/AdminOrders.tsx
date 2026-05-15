@@ -1,6 +1,7 @@
 'use client';
 
 import { Fragment, useEffect, useState, useCallback } from 'react';
+import { getImagePath } from '@/lib/utils';
 import { Search, ChevronDown, ChevronUp, Loader2, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -316,7 +317,7 @@ export default function AdminOrders() {
                                         <div className="h-12 w-12 rounded-md bg-muted overflow-hidden shrink-0">
                                           {item.productImage && (
                                             <img
-                                              src={item.productImage}
+                                              src={getImagePath(item.productImage)}
                                               alt={item.productName}
                                               className="h-full w-full object-cover"
                                             />
